@@ -6,6 +6,7 @@ namespace Domain\Product\Actions;
 use Domain\Product\Models\Product;
 use Illuminate\Support\Facades\Storage;
 use Domain\Product\DataObjects\ShowOrDeleteOneProductData;
+use Domain\Product\Resources\ProductResource;
 
 class DeleteProductAction
 {
@@ -14,12 +15,16 @@ class DeleteProductAction
         $product =  Product::query()->whereId($dto->id)->first();
 
         if (!$product) {
-            throw new \Exception("Product not found");
+            return ProductResource::error(message: "Product not found", code: 404);
         }
 
-        Storage::delete($product->image);
+
+        if (!empty($product->image)) {
+            Storage::delete($product->image);
+        }
+
         $product->delete();
 
-        return true;
+        return ProductResource::success(message: "Product deleted successfully");
     }
 }

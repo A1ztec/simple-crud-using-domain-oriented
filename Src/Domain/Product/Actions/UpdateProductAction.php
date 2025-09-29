@@ -6,6 +6,7 @@ use Domain\Product\Models\Product;
 use Illuminate\Support\Facades\Storage;
 
 use function Support\Helpers\UploadImage;
+use Domain\Product\Resources\ProductResource;
 use Domain\Product\DataObjects\UpdateProductData;
 
 class UpdateProductAction
@@ -17,7 +18,7 @@ class UpdateProductAction
 
 
         if (!$product) {
-            throw new \Exception("Product not found");
+            return ProductResource::error(message: "Product not found", code: 404);
         }
 
         if ($dto->image && is_file($dto->image)) {
@@ -26,8 +27,13 @@ class UpdateProductAction
             $dto->image = $path;
         }
 
-        $product->update($dto);
+        $data = collect((array)$dto)->filter(fn($value) => !is_null($value))->except('id')->toArray();
 
-        return $product;
+        try {
+            $product->update($data);
+            return ProductResource::success(data: $product, message: "Product updated successfully", code: 200);
+        } catch (\Exception $e) {
+            return ProductResource::error(message: "Error updating product: " . $e->getMessage(), code: 500);
+        }
     }
 }

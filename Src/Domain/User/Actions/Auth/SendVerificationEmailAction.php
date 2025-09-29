@@ -19,6 +19,11 @@ class SendVerificationEmailAction
 
     public function execute(ReSendVerificationEmailData $data): UserResource
     {
+        $user = User::query()->whereEmail($data->email)->whereNotVerified()->first();
+
+        if (!$user) {
+            return UserResource::error(message: 'User not found or already verified', code: 404);
+        }
 
         $resource = $this->generateVerificationCodeAction->execute($data);
         try {

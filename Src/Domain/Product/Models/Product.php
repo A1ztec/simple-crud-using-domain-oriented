@@ -3,6 +3,7 @@
 namespace Domain\Product\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Domain\Product\QueryBuilder\ProductQueryBuilder;
 
 class Product extends Model
 {
@@ -18,5 +19,8 @@ class Product extends Model
         'created_at' => 'datetime',
     ];
 
-    
+    public function newEloquentBuilder($query): ProductQueryBuilder
+    {
+        return new ProductQueryBuilder($query);
+    }
 }

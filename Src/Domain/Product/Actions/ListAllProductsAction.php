@@ -4,6 +4,7 @@
 namespace Domain\Product\Actions;
 
 use Domain\Product\Models\Product;
+use Domain\Product\Resources\ProductResource;
 
 
 class ListAllProductsAction
@@ -14,8 +15,8 @@ class ListAllProductsAction
         $products = Product::all();
 
         if ($products->isEmpty()) {
-            throw new \Exception("No products found");
+            return ProductResource::error(message: "No products found", code: 404);
         }
-        return $products;
+        return ProductResource::success(data: $products, message: "Products retrieved successfully", code: 200);
     }
 }

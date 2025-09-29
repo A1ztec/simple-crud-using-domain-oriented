@@ -1,6 +1,6 @@
 <?php
 
-namespace Domin\Product\DataObjects;
+namespace Domain\Product\DataObjects;
 
 
 class CreateProductData
