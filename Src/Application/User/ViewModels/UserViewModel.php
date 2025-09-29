@@ -21,9 +21,10 @@ class UserViewModel
             return $this->successResponse(code: $this->resource->getCode(), message: $this->resource->getMessage());
         }
 
-        dd(function_exists('fractal'));
+        //  dd(function_exists('fractal'));
+        // dd($this->resource->getData());
 
-        $data =  fractal()->item($this->resource->getData())
+        $data = fractal()->item($this->resource->getData())
             ->transformWith(new UserTransformer())
             ->toArray();
 

@@ -9,9 +9,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use Domain\User\Resources\UserResource;
 use Domain\User\DataObjects\Auth\RegisterUserData;
+use Domain\User\DataObjects\Auth\ReSendVerificationEmailData;
 
 class RegisterUserAction
 {
+
+    public function __construct(private SendVerificationEmailAction $sendVerificationEmailAction) {}
     public function execute(RegisterUserData $data): UserResource
     {
         if (User::query()->whereEmail($data->email)->exists()) {
@@ -25,16 +28,11 @@ class RegisterUserAction
             'password' => Hash::make($data->password),
         ]);
 
-        try {
-            $token = JWTAuth::fromUser($user);
-        } catch (\Exception $e) {
-            Log::error('Could not create token for user: ' . $e->getMessage());
-            return UserResource::error(message: 'Could not create token', code: 500);
-        }
+        $resource = $this->sendVerificationEmailAction->execute(new ReSendVerificationEmailData(email: $data->email));
 
         return UserResource::success(data: [
             'user' => $user,
-            'token' => $token,
-        ], code: 201, message: 'User registered successfully');
+            'verification' => $resource->getMessage(),
+        ], code: 201, message: 'User registered successfully. Please verify your email.');
     }
 }
