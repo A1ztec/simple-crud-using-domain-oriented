@@ -9,28 +9,23 @@ class VerifyUserEmailAction
 {
     public function execute($data): UserResource
     {
-        $user = User::query()->whereEmail($data->email)->first();
-        $code = $data->verification_code;
+        $user = User::query()->whereEmail($data->email)
+            ->whereNotVerified()
+            ->whereVerificationCode($data->verification_code)
+            ->whereVerificationCodeValid()
+            ->first();
 
         if (!$user) {
-            return UserResource::error(message: 'User not found', code: 404);
+            return UserResource::error(message: 'Invalid or expired verification code', code: 400);
         }
 
-        if ($user->hasVerifiedEmail()) {
-            return UserResource::error(message: 'Email already verified', code: 400);
-        }
 
-        if ($user->verification_code_expires_at < now()) {
-            return UserResource::error(message: 'Verification code expired', code: 400);
-        }
-
-        if ($user->verification_code != $code) {
-            return UserResource::error(message: 'Invalid verification code', code: 400);
-        }
 
         $user->email_verified_at = now();
         $user->verification_code = null;
+        $user->verification_code_expires_at = null;
         $user->save();
+
 
         return UserResource::success(data: [
             'user' => $user,
