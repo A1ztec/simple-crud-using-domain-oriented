@@ -2,12 +2,13 @@
 
 namespace Domain\User\Mails;
 
+use Domain\User\Models\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class VerificationCodeEmail extends Mailable
 {
@@ -16,7 +17,7 @@ class VerificationCodeEmail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(public $user, public $code)
+    public function __construct(public User $user,)
     {
         //
     }
@@ -38,7 +39,7 @@ class VerificationCodeEmail extends Mailable
     {
         return new Content(
             view: 'emails.verification-code',
-        )->with(['code' => $this->code, 'name' => $this->user->name]);
+        )->with(['code' => $this->user->verification_code, 'name' => $this->user->name]);
     }
 
     /**

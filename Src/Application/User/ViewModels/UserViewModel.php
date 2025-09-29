@@ -3,7 +3,7 @@
 namespace Application\User\ViewModels;
 
 use Support\Traits\apiResponse;
-use Domin\User\Resources\UserResource;
+use Domain\User\Resources\UserResource;
 use Application\User\Transformers\UserTransformer;
 
 
@@ -20,6 +20,8 @@ class UserViewModel
         if (empty($this->resource->getData()) && $this->resource->isSuccess()) {
             return $this->successResponse(code: $this->resource->getCode(), message: $this->resource->getMessage());
         }
+
+        dd(function_exists('fractal'));
 
         $data =  fractal()->item($this->resource->getData())
             ->transformWith(new UserTransformer())

@@ -3,15 +3,16 @@
 
 namespace Domain\User\Actions\Auth;
 
+use Domain\User\DataObjects\Auth\LoginUserData;
 use Domain\User\Models\User;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
-use Domin\User\Resources\UserResource;
+use Domain\User\Resources\UserResource;
 
 class LoginUserAction
 {
-    public function execute($data): UserResource
+    public function execute(LoginUserData $data): UserResource
     {
         $user = User::query()->whereEmail($data->email)->first();
 

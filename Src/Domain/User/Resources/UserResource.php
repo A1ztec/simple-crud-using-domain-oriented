@@ -1,6 +1,6 @@
 <?php
 
-namespace Domin\User\Resources;
+namespace Domain\User\Resources;
 
 class UserResource
 {

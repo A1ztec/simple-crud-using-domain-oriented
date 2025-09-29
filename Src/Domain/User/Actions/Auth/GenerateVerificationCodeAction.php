@@ -2,15 +2,16 @@
 
 namespace Domain\User\Actions\Auth;
 
+use Domain\User\DataObjects\Auth\ReSendVerificationEmailData;
 use Domain\User\Models\User;
-use Domin\User\Resources\UserResource;
+use Domain\User\Resources\UserResource;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 
 class GenerateVerificationCodeAction
 {
-    public function execute($data): UserResource
+    public function execute( ReSendVerificationEmailData $data): UserResource
     {
         $user = User::query()->whereEmail($data->email)->first();
 

@@ -25,7 +25,7 @@ class VerifyEmailRequest extends FormRequest
     {
         return [
             'email' => ['required', 'email', 'exists:users,email'],
-            'verification_code' => [Rule::requiredIf($this->route('verify_email')), 'string', 'size:6'],
+            'verification_code' => [Rule::requiredIf($this->route('verify_email')), 'string', 'size:4'],
         ];
     }
 }

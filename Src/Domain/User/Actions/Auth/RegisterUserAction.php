@@ -4,14 +4,15 @@
 namespace Domain\User\Actions\Auth;
 
 use Domain\User\Models\User;
-use Domin\User\Resources\UserResource;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use Domain\User\Resources\UserResource;
+use Domain\User\DataObjects\Auth\RegisterUserData;
 
 class RegisterUserAction
 {
-    public function execute($data): UserResource
+    public function execute(RegisterUserData $data): UserResource
     {
         if (User::query()->whereEmail($data->email)->exists()) {
             return UserResource::error(message: 'User already exists', code: 400);

@@ -3,11 +3,12 @@
 namespace Domain\User\Actions\Auth;
 
 use Domain\User\Models\User;
-use Domin\User\Resources\UserResource;
+use Domain\User\Resources\UserResource;
+use Domain\User\DataObjects\Auth\VerifyEmailData;
 
 class VerifyUserEmailAction
 {
-    public function execute($data): UserResource
+    public function execute(VerifyEmailData $data): UserResource
     {
         $user = User::query()->whereEmail($data->email)
             ->whereNotVerified()

@@ -30,7 +30,7 @@ class AuthController extends Controller
         $data = $request->validated();
         $dto = new RegisterUserData(...$data);
         $resource = $this->registerUserAction->execute($dto);
-        return new UserViewModel($resource)->toResponse();
+        return new UserViewModel($resource);
     }
 
     public function login(LoginRequest $request)
@@ -38,7 +38,7 @@ class AuthController extends Controller
         $data = $request->validated();
         $dto = new LoginUserData(...$data);
         $resource = $this->loginUserAction->execute($dto);
-        return new UserViewModel($resource)->toResponse();
+        return new UserViewModel($resource);
     }
 
     public function verifyEmail(VerifyEmailRequest $request)
@@ -46,7 +46,7 @@ class AuthController extends Controller
         $data = $request->validated();
         $dto = new VerifyEmailData(...$data);
         $resource = $this->verifyUserEmailAction->execute($dto);
-        return new UserViewModel($resource)->toResponse();
+        return new UserViewModel($resource);
     }
 
     public function reSendVerificationCode(VerifyEmailRequest $request)
@@ -54,6 +54,6 @@ class AuthController extends Controller
         $data = $request->validated();
         $dto = new ReSendVerificationEmailData(...$data);
         $resource = $this->sendVerificationEmailAction->execute($dto);
-        return new UserViewModel($resource)->toResponse();
+        return new UserViewModel($resource);
     }
 }

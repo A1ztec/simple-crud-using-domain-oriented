@@ -8,20 +8,21 @@ use Domain\User\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
-use Domin\User\Resources\UserResource;
+use Domain\User\Resources\UserResource;
 use Domain\User\Mails\VerificationCodeEmail;
 use Domain\User\Actions\Auth\GenerateVerificationCodeAction;
+use Domain\User\DataObjects\Auth\ReSendVerificationEmailData;
 
 class SendVerificationEmailAction
 {
     public function __construct(private GenerateVerificationCodeAction $generateVerificationCodeAction) {}
 
-    public function execute($user): UserResource
+    public function execute(ReSendVerificationEmailData $data): UserResource
     {
 
-        $code = $this->generateVerificationCodeAction->execute($user);
+        $resource = $this->generateVerificationCodeAction->execute($data);
         try {
-            Mail::to($user->email)->queue(new VerificationCodeEmail($code, $user->name));
+            Mail::to($data->email)->queue(new VerificationCodeEmail($resource->getData()));
             Log::info('Verification Code Send.');
             return UserResource::success(code: 200, message: 'Verification code sent to email');
         } catch (Exception $e) {

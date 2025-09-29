@@ -16,8 +16,7 @@ class UserQueryBuilder extends Builder
 
     public function whereVerificationCodeValid(): self
     {
-        return $this->where('verification_code_expires_at', '>', now())
-            ->whereNotNull('verification_code');
+        return $this->where('verification_code_expires_at', '>', now());
     }
 
     public function whereIsVerified(): self
