@@ -15,7 +15,7 @@ class UserViewModel
     public function toResponse()
     {
         if (!$this->resource->isSuccess()) {
-            return $this->errorResponse();
+            return $this->errorResponse(message: $this->resource->getMessage(), code: $this->resource->getCode());
         }
         if (empty($this->resource->getData()) && $this->resource->isSuccess()) {
             return $this->successResponse(code: $this->resource->getCode(), message: $this->resource->getMessage());
