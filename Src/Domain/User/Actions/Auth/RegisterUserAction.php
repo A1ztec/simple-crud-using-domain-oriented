@@ -13,7 +13,7 @@ class RegisterUserAction
 {
     public function execute($data): UserResource
     {
-        if (User::where('email', $data->email)->exists()) {
+        if (User::query()->whereEmail($data->email)->exists()) {
             return UserResource::error(message: 'User already exists', code: 400);
         }
 

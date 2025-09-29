@@ -7,9 +7,9 @@ use Domin\User\Resources\UserResource;
 
 class VerifyUserEmailAction
 {
-    public function execute($data) : UserResource
+    public function execute($data): UserResource
     {
-        $user = User::where('email', $data->email)->first();
+        $user = User::query()->whereEmail($data->email)->first();
         $code = $data->verification_code;
 
         if (!$user) {

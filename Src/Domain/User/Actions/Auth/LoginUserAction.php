@@ -13,7 +13,7 @@ class LoginUserAction
 {
     public function execute($data): UserResource
     {
-        $user = User::where('email', $data->email)->first();
+        $user = User::query()->whereEmail($data->email)->first();
 
         $validPassword = $user ? Hash::check($data->password, $user->password) : false;
 

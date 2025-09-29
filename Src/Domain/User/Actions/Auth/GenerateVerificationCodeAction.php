@@ -12,7 +12,7 @@ class GenerateVerificationCodeAction
 {
     public function execute($data): UserResource
     {
-        $user = User::where('email', $data->email)->first();
+        $user = User::query()->whereEmail($data->email)->first();
 
         if (!$user) {
             return UserResource::error(message: 'User not found', code: 404);
@@ -31,7 +31,6 @@ class GenerateVerificationCodeAction
             DB::commit();
 
             return  UserResource::success(data: $user, message: 'Verification code generated successfully', code: 200);
-            
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Could not generate verification code: ' . $e->getMessage());
