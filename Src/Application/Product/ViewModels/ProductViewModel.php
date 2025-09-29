@@ -2,8 +2,10 @@
 
 namespace Application\Product\ViewModels;
 
-use Domain\Product\Resources\ProductResource;
 use Support\Traits\apiResponse;
+use Domain\Product\Resources\ProductResource;
+use League\Fractal\Serializer\JsonApiSerializer;
+use Application\Product\Transformers\ProductTransformer;
 
 class ProductViewModel
 {
@@ -13,10 +15,13 @@ class ProductViewModel
 
     public function toResponse()
     {
-        if(!$this->resource->isSuccess()|| $this->resource->getcode() >= 400) {
+        if (!$this->resource->isSuccess() || $this->resource->getcode() >= 400) {
             return $this->errorResponse(data: $this->resource->getdata(), code: $this->resource->getcode(), message: $this->resource->getmessage());
         }
 
-
+        return  fractal()->item($this->resource->getData())
+            ->transformWith(new ProductTransformer())
+            ->serializeWith(new JsonApiSerializer())
+            ->toArray();
     }
 }

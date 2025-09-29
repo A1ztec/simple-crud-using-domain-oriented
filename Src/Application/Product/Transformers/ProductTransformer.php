@@ -14,6 +14,7 @@ class ProductTransformer extends TransformerAbstract
             'name' => $data->name,
             'description' => $data->description,
             'price' => $data->price,
+            'image' => $data->image,
         ];
     }
 }

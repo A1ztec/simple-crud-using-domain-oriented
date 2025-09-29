@@ -2,6 +2,7 @@
 
 namespace Application\Product\ViewModels;
 
+use League\Fractal\Serializer\JsonApiSerializer;
 use Support\Traits\apiResponse;
 use Domain\Product\Resources\ProductResource;
 use Application\Product\Transformers\ProductTransformer;
@@ -18,8 +19,13 @@ class ListProductSViewModel
             return $this->errorResponse(data: $this->resource->getdata(), code: $this->resource->getcode(), message: $this->resource->getmessage());
         }
 
-        fractal()->collection($this->resource->getData())
+        if ($this->resource->isSuccess() && $this->resource->getData() == null) {
+            return $this->successResponse(code: $this->resource->getcode(), message: $this->resource->getmessage());
+        }
+
+        return fractal()->collection($this->resource->getData())
             ->transformWith(new ProductTransformer())
+            ->serializeWith(new JsonApiSerializer())
             ->toArray();
     }
 }

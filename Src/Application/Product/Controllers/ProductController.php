@@ -52,4 +52,10 @@ class ProductController
         $dto = new UpdateProductData(...$data);
         return (new ProductViewModel($this->updateProductAction->execute($dto)))->toResponse();
     }
+
+    public function destroy(Product $product)
+    {
+        $dto = new ShowOrDeleteOneProductData(id: $product->id);
+        return (new ProductViewModel($this->deleteProductAction->execute($dto)))->toResponse();
+    }
 }

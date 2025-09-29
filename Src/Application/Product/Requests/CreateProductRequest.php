@@ -1,12 +1,8 @@
-
-
 <?php
-
 
 namespace Application\Product\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-
 
 class CreateProductRequest extends FormRequest
 {
