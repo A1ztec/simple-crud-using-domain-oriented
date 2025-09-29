@@ -25,4 +25,14 @@ class UserQueryBuilder extends Builder
         return $this->whereNotNull('email_verified_at')
             ->whereNull('verification_code');
     }
+
+    public function whereNotVerified(): self
+    {
+        return $this->where('email_verified_at', null)
+            ->whereNotNull('verification_code');
+    }
+    public function whereVerificationCode(string $code): self
+    {
+        return $this->where('verification_code', $code);
+    }
 }
