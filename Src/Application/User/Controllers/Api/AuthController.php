@@ -18,42 +18,37 @@ use Domain\User\Actions\Auth\SendVerificationEmailAction;
 
 class AuthController extends Controller
 {
-    public function __construct(
-        private RegisterUserAction $registerUserAction,
-        private LoginUserAction $loginUserAction,
-        private VerifyUserEmailAction $verifyUserEmailAction,
-        private SendVerificationEmailAction $sendVerificationEmailAction
-    ) {}
 
-    public function register(RegisterUserRequest $request)
+
+    public function register(RegisterUserRequest $request, RegisterUserAction $registerUserAction)
     {
         $data = $request->validated();
         $dto = new RegisterUserData(...$data);
-        $resource = $this->registerUserAction->execute($dto);
+        $resource = $registerUserAction->execute($dto);
         return (new UserViewModel($resource))->toResponse();
     }
 
-    public function login(LoginRequest $request)
+    public function login(LoginRequest $request, LoginUserAction $loginUserAction)
     {
         $data = $request->validated();
         $dto = new LoginUserData(...$data);
-        $resource = $this->loginUserAction->execute($dto);
+        $resource = $loginUserAction->execute($dto);
         return (new UserViewModel($resource))->toResponse();
     }
 
-    public function verifyEmail(VerifyEmailRequest $request)
+    public function verifyEmail(VerifyEmailRequest $request, VerifyUserEmailAction $verifyUserEmailAction)
     {
         $data = $request->validated();
         $dto = new VerifyEmailData(...$data);
-        $resource = $this->verifyUserEmailAction->execute($dto);
+        $resource = $verifyUserEmailAction->execute($dto);
         return (new UserViewModel($resource))->toResponse();
     }
 
-    public function reSendVerificationCode(VerifyEmailRequest $request)
+    public function reSendVerificationCode(VerifyEmailRequest $request, SendVerificationEmailAction $sendVerificationEmailAction)
     {
         $data = $request->validated();
         $dto = new ReSendVerificationEmailData(...$data);
-        $resource = $this->sendVerificationEmailAction->execute($dto);
+        $resource = $sendVerificationEmailAction->execute($dto);
         return (new UserViewModel($resource))->toResponse();
     }
 }
