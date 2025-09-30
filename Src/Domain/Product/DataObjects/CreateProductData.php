@@ -8,7 +8,7 @@ class CreateProductData
 {
     public function __construct(
         public string $name,
-        public string $description,
+        public ?string $description = null,
         public float $price,
         public null|string|UploadedFile $image = null
     ) {}
