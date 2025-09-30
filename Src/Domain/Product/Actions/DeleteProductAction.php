@@ -10,7 +10,7 @@ use Domain\Product\Resources\ProductResource;
 
 class DeleteProductAction
 {
-    public function execute(ShowOrDeleteOneProductData $dto)
+    public function execute(ShowOrDeleteOneProductData $dto) : ProductResource
     {
         $product =  Product::query()->whereId($dto->id)->first();
 

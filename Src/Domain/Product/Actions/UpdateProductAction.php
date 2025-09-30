@@ -12,7 +12,7 @@ use Domain\Product\DataObjects\UpdateProductData;
 class UpdateProductAction
 {
 
-    public function execute(UpdateProductData $dto)
+    public function execute(UpdateProductData $dto) : ProductResource
     {
         $product = Product::query()->whereId($dto->id)->first();
 

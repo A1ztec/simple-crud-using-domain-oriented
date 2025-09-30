@@ -11,7 +11,7 @@ use function Support\Helpers\UploadImage;
 class CreateProductAction
 
 {
-    public function execute(CreateProductData $dto)
+    public function execute(CreateProductData $dto) : ProductResource
     {
 
         if ($dto->image && is_file($dto->image)) {
@@ -30,7 +30,7 @@ class CreateProductAction
 
             return ProductResource::success(data: $product, message: "Product created successfully", code: 201);
         } catch (\Exception $e) {
-            
+
             return ProductResource::error(message: "Error creating product: " . $e->getMessage(), code: 500);
         }
     }

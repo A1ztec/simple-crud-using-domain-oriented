@@ -10,7 +10,7 @@ use Domain\Product\Resources\ProductResource;
 class ListAllProductsAction
 {
 
-    public function execute()
+    public function execute()   : ProductResource
     {
         $products = Product::all();
 
