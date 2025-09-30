@@ -7,7 +7,7 @@ use Support\Traits\apiResponse;
 use Domain\Product\Resources\ProductResource;
 use Application\Product\Transformers\ProductTransformer;
 
-class ListProductSViewModel
+class ListProductsViewModel
 {
     use apiResponse;
 

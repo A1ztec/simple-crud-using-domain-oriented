@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 function UploadImage($image, $folder, $disk = 'public')
 {
 
-    if (!$image || !$image->isValid()) {
+    if (!$image && !is_file($image)) {
         return null;
     }
 

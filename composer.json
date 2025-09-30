@@ -33,7 +33,10 @@
             "Domain\\": "Src/Domain/",
             "Application\\" : "Src/Application/",
             "Support\\" : "Src/Support/"
-        }
+        },
+        "files": [
+            "Src/Support/Helpers/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

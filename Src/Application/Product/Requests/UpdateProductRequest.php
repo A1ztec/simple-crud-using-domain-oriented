@@ -22,10 +22,10 @@ class UpdateProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['sometimes', 'required', 'string', 'max:255'],
-            'description' => ['sometimes', 'nullable', 'string'],
-            'price' => ['sometimes', 'required', 'numeric', 'min:0'],
-            'image' => ['sometimes', 'nullable', 'image', 'max:2048', 'mimes:jpeg,png,jpg,gif'],
+            'name' => ['nullable', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'price' => ['nullable', 'numeric', 'min:0'],
+            'image' => ['nullable', 'image', 'max:2048', 'mimes:jpeg,png,jpg,gif'],
         ];
     }
 }

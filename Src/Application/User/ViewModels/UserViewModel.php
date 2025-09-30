@@ -4,6 +4,7 @@ namespace Application\User\ViewModels;
 
 use Support\Traits\apiResponse;
 use Domain\User\Resources\UserResource;
+use League\Fractal\Serializer\JsonApiSerializer;
 use Application\User\Transformers\UserTransformer;
 
 
@@ -26,6 +27,7 @@ class UserViewModel
 
         $data = fractal()->item($this->resource->getData())
             ->transformWith(new UserTransformer())
+            ->serializeWith(new JsonApiSerializer())
             ->toArray();
 
         return $this->successResponse(code: $this->resource->getCode(), message: $this->resource->getMessage(), data: $data);

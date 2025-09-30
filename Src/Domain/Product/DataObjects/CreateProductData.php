@@ -2,6 +2,7 @@
 
 namespace Domain\Product\DataObjects;
 
+use Illuminate\Http\UploadedFile;
 
 class CreateProductData
 {
@@ -9,6 +10,6 @@ class CreateProductData
         public string $name,
         public string $description,
         public float $price,
-        public ?string $image
+        public null|string|UploadedFile $image = null
     ) {}
 }

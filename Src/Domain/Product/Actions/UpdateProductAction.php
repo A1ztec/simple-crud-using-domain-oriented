@@ -17,17 +17,27 @@ class UpdateProductAction
         $product = Product::query()->whereId($dto->id)->first();
 
 
+
+
         if (!$product) {
             return ProductResource::error(message: "Product not found", code: 404);
         }
 
+
         if ($dto->image && is_file($dto->image)) {
-            Storage::delete($product->image);
+
+            if ($product->image && Storage::disk('public')->exists($product->image)) {
+                Storage::disk('public')->delete($product->image);
+            }
+
+
             $path = UploadImage($dto->image, 'products');
             $dto->image = $path;
         }
 
         $data = collect((array)$dto)->filter(fn($value) => !is_null($value))->except('id')->toArray();
+
+        //dd($data);
 
         try {
             $product->update($data);

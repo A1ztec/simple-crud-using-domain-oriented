@@ -19,6 +19,10 @@ class ProductViewModel
             return $this->errorResponse(data: $this->resource->getdata(), code: $this->resource->getcode(), message: $this->resource->getmessage());
         }
 
+        if ($this->resource->isSuccess() && $this->resource->getData() == null) {
+            return $this->successResponse(code: $this->resource->getcode(), message: $this->resource->getmessage());
+        }
+
         return  fractal()->item($this->resource->getData())
             ->transformWith(new ProductTransformer())
             ->serializeWith(new JsonApiSerializer())

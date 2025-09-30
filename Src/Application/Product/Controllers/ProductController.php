@@ -16,6 +16,7 @@ use Domain\Product\DataObjects\UpdateProductData;
 use Application\Product\ViewModels\ProductViewModel;
 use Application\Product\Requests\CreateProductRequest;
 use Application\Product\Requests\UpdateProductRequest;
+use Application\Product\ViewModels\ListProductsViewModel;
 use Domain\Product\DataObjects\ShowOrDeleteOneProductData;
 
 class ProductController
@@ -27,9 +28,9 @@ class ProductController
         private UpdateProductAction $updateProductAction,
         private DeleteProductAction $deleteProductAction
     ) {}
-    public function index()
+    public function listAll()
     {
-        return (new ProductViewModel($this->listAllProductsAction->execute()))->toResponse();
+        return (new ListProductsViewModel($this->listAllProductsAction->execute()))->toResponse();
     }
 
     public function show(Product $product)

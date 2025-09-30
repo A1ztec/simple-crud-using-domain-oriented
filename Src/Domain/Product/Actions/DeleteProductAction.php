@@ -19,8 +19,10 @@ class DeleteProductAction
         }
 
 
-        if (!empty($product->image)) {
-            Storage::delete($product->image);
+        if ($product->image) {
+            if (Storage::disk('public')->exists($product->image)) {
+                Storage::disk('public')->delete($product->image);
+            }
         }
 
         $product->delete();

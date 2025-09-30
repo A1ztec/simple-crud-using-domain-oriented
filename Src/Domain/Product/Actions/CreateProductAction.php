@@ -27,8 +27,10 @@ class CreateProductAction
                 'price' => $dto->price,
                 'image' => $path
             ]);
+
             return ProductResource::success(data: $product, message: "Product created successfully", code: 201);
         } catch (\Exception $e) {
+            
             return ProductResource::error(message: "Error creating product: " . $e->getMessage(), code: 500);
         }
     }

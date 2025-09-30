@@ -18,5 +18,11 @@ Route::prefix('v1')->group(function () {
         Route::post('/resend-verification-code', 'reSendVerificationCode')->name('api.auth.resend-verification-code');
     });
 
-    Route::apiResource('products', ProductController::class)->middleware('jwt.auth');
+    Route::controller(ProductController::class)->prefix('products')->middleware('jwt.auth')->group(function () {
+        Route::get('/', 'listAll')->name('api.products.listAll');
+        Route::get('/{product}', 'show')->name('api.products.show');
+        Route::post('/', 'store')->name('api.products.save');
+        Route::post('/{product}', 'update')->name('api.products.update');
+        Route::delete('/{product}', 'destroy')->name('api.products.delete');
+    });
 });

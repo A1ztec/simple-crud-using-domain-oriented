@@ -2,6 +2,7 @@
 
 namespace Application\Product\Transformers;
 
+use Illuminate\Support\Facades\Storage;
 use League\Fractal\TransformerAbstract;
 
 class ProductTransformer extends TransformerAbstract
@@ -14,7 +15,7 @@ class ProductTransformer extends TransformerAbstract
             'name' => $data->name,
             'description' => $data->description,
             'price' => $data->price,
-            'image' => $data->image,
+            'image' => $data->image ? url($data->image) : null,
         ];
     }
 }
