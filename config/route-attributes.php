@@ -15,7 +15,16 @@ return [
     'directories' => [
         app_path('Http/Controllers'),
 
-        base_path('Src/Application/Product/Controllers') => 'namespace:Application\Product\Controllers',
+        base_path('Src/Application/User/Controllers') => [
+            'namespace' => 'Application\User\Controllers',
+            'prefix' => 'api/v1',
+        ],
+
+        base_path('Src/Application/Product/Controllers') => [
+            'namespace' => 'Application\Product\Controllers',
+            'prefix' => 'api/v1',
+            'middleware' => ['jwt.auth'],
+        ]
         /*
         app_path('Http/Controllers/Api') => [
            'prefix' => 'api',
