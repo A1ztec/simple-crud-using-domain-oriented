@@ -3,23 +3,30 @@
 namespace Application\User\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Domain\User\DataObjects\Auth\LoginUserData;
-use Domain\User\DataObjects\Auth\VerifyEmailData;
+use Spatie\RouteAttributes\Attributes\Post;
 use Domain\User\Actions\Auth\LoginUserAction;
-use Domain\User\DataObjects\Auth\RegisterUserData;
+use Spatie\RouteAttributes\Attributes\Prefix;
 use Application\User\ViewModels\UserViewModel;
+use Domain\User\DataObjects\Auth\LoginUserData;
 use Application\User\Requests\Auth\LoginRequest;
 use Domain\User\Actions\Auth\RegisterUserAction;
+use Domain\User\DataObjects\Auth\VerifyEmailData;
+use Domain\User\DataObjects\Auth\RegisterUserData;
 use Domain\User\Actions\Auth\VerifyUserEmailAction;
 use Application\User\Requests\Auth\VerifyEmailRequest;
 use Application\User\Requests\Auth\RegisterUserRequest;
-use Domain\User\DataObjects\Auth\ReSendVerificationEmailData;
 use Domain\User\Actions\Auth\SendVerificationEmailAction;
+use Domain\User\DataObjects\Auth\ReSendVerificationEmailData;
 
+#[Prefix('auth')]
 class AuthController extends Controller
 {
 
 
+    #[Post(
+        uri: '/register',
+        name: 'auth.register'
+    )]
     public function register(RegisterUserRequest $request, RegisterUserAction $registerUserAction)
     {
         $data = $request->validated();
@@ -28,6 +35,10 @@ class AuthController extends Controller
         return (new UserViewModel($resource))->toResponse();
     }
 
+    #[Post(
+        uri: '/login',
+        name: 'auth.login'
+    )]
     public function login(LoginRequest $request, LoginUserAction $loginUserAction)
     {
         $data = $request->validated();
@@ -36,6 +47,10 @@ class AuthController extends Controller
         return (new UserViewModel($resource))->toResponse();
     }
 
+    #[Post(
+        uri: '/verify-email',
+        name: 'auth.verify-email'
+    )]
     public function verifyEmail(VerifyEmailRequest $request, VerifyUserEmailAction $verifyUserEmailAction)
     {
         $data = $request->validated();
@@ -44,6 +59,10 @@ class AuthController extends Controller
         return (new UserViewModel($resource))->toResponse();
     }
 
+    #[Post(
+        uri: '/resend-verification-code',
+        name: 'auth.resend-verification-code'
+    )]
     public function reSendVerificationCode(VerifyEmailRequest $request, SendVerificationEmailAction $sendVerificationEmailAction)
     {
         $data = $request->validated();
