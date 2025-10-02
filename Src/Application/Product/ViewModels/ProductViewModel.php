@@ -2,32 +2,24 @@
 
 namespace Application\Product\ViewModels;
 
-use Domain\Product\QueryBuilder\ProductQueryBuilder;
-use Support\Traits\apiResponse;
-use Domain\Product\Resources\ProductResource;
 use League\Fractal\Serializer\JsonApiSerializer;
 use Application\Product\Transformers\ProductTransformer;
-use Domain\Product\Models\Product;
-use Domain\User\Resources\Contracts\UserResourceInterface;
+use Src\Domain\Product\Resources\Contracts\ProductResourceInterface;
 
 class ProductViewModel
 {
-    use apiResponse;
-
-    public function __construct( private UserResourceInterface $resource) {}
+    public function __construct(private ProductResourceInterface $resource) {}
 
     public function toResponse()
     {
-
-
-       $data = $this->resource->getData();
-
-        return  fractal()->item($data)
+        return fractal()->item($this->resource->getData())
             ->serializeWith(new JsonApiSerializer())
             ->transformWith(new ProductTransformer())
+            ->addMeta([
+                'success' => $this->resource->isSuccess(),
+                'message' => $this->resource->getMessage(),
+                'code' => $this->resource->getCode()
+            ])
             ->toArray();
     }
-
-
-    
 }

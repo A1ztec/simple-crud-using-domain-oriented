@@ -1,33 +1,28 @@
 <?php
 
-
 namespace Application\Product\ViewModels;
 
 use Domain\Product\Models\Product;
-use Domain\Product\DataObjects\ProductData;
 use League\Fractal\Serializer\JsonApiSerializer;
-use Domain\Product\QueryBuilder\ProductQueryBuilder;
 use Application\Product\Transformers\ProductTransformer;
-
+use Application\Product\QueryBuilders\ProductQueryBuilder;
+use Domain\Product\DataObjects\ShowOrDeleteOneProductData;
 
 class ProductShowViewModel
 {
-    public function __construct(private ProductData $data) {}
+    public function __construct(private ShowOrDeleteOneProductData $data) {}
 
     public function toResponse()
     {
+        $product = $this->getData();
 
-
-        $data = $this->getData();
-
-        return  fractal()->item($data)
+        return fractal()->item($product)
             ->serializeWith(new JsonApiSerializer())
             ->transformWith(new ProductTransformer())
             ->toArray();
     }
 
-
-    public function getData(): Product
+    private function getData(): Product
     {
         return (new ProductQueryBuilder())->showProduct($this->data->id);
     }

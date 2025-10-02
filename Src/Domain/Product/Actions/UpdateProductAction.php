@@ -6,13 +6,15 @@ use Domain\Product\Models\Product;
 use Illuminate\Support\Facades\Storage;
 
 use function Support\Helpers\UploadImage;
-use Domain\Product\Resources\ProductResource;
 use Domain\Product\DataObjects\UpdateProductData;
+use Domain\Product\Resources\UpdateProductFailedResource;
+use Domain\Product\Resources\UpdateProductSuccessResource;
+use Src\Domain\Product\Resources\Contracts\ProductResourceInterface;
 
 class UpdateProductAction
 {
 
-    public function execute(UpdateProductData $dto) : ProductResource
+    public function execute(UpdateProductData $dto): ProductResourceInterface
     {
         $product = Product::query()->whereId($dto->id)->first();
 
@@ -20,7 +22,7 @@ class UpdateProductAction
 
 
         if (!$product) {
-            return ProductResource::error(message: "Product not found", code: 404);
+            return new UpdateProductFailedResource();
         }
 
 
@@ -41,9 +43,9 @@ class UpdateProductAction
 
         try {
             $product->update($data);
-            return ProductResource::success(data: $product, message: "Product updated successfully", code: 200);
+            return new UpdateProductSuccessResource();
         } catch (\Exception $e) {
-            return ProductResource::error(message: "Error updating product: " . $e->getMessage(), code: 500);
+            return new UpdateProductFailedResource();
         }
     }
 }

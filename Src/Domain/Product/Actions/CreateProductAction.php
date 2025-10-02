@@ -3,15 +3,16 @@
 namespace Domain\Product\Actions;
 
 use Domain\Product\Models\Product;
-use Domain\Product\DataObjects\CreateProductData;
-use Domain\Product\Resources\ProductResource;
-
 use function Support\Helpers\UploadImage;
+use Domain\Product\DataObjects\CreateProductData;
+use Domain\Product\Resources\CreateProductFailedResource;
+use Domain\Product\Resources\CreateProductSuccessResource;
+use Src\Domain\Product\Resources\Contracts\ProductResourceInterface;
 
 class CreateProductAction
 
 {
-    public function execute(CreateProductData $dto) : ProductResource
+    public function execute(CreateProductData $dto): ProductResourceInterface
     {
 
         if ($dto->image && is_file($dto->image)) {
@@ -28,10 +29,10 @@ class CreateProductAction
                 'image' => $path
             ]);
 
-            return ProductResource::success(data: $product, message: "Product created successfully", code: 201);
+            return new CreateProductSuccessResource(data: $product);
         } catch (\Exception $e) {
 
-            return ProductResource::error(message: "Error creating product: " . $e->getMessage(), code: 500);
+            return new CreateProductFailedResource();
         }
     }
 }

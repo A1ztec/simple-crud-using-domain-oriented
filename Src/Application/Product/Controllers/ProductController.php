@@ -1,10 +1,7 @@
 <?php
 
-
 namespace Application\Product\Controllers;
 
-
-use GuzzleHttp\Promise\Create;
 use Domain\Product\Models\Product;
 use Spatie\RouteAttributes\Attributes\Get;
 use Spatie\RouteAttributes\Attributes\Post;
@@ -12,12 +9,9 @@ use Spatie\RouteAttributes\Attributes\Prefix;
 use Domain\Product\Actions\CreateProductAction;
 use Domain\Product\Actions\DeleteProductAction;
 use Domain\Product\Actions\UpdateProductAction;
-use Domain\Product\Actions\ShowOneProductAction;
-use Domain\Product\Actions\ListAllProductsAction;
 use Domain\Product\DataObjects\CreateProductData;
 use Domain\Product\DataObjects\UpdateProductData;
 use Application\Product\ViewModels\ProductViewModel;
-use Domain\Product\QueryBuilder\ProductQueryBuilder;
 use Application\Product\Requests\CreateProductRequest;
 use Application\Product\Requests\UpdateProductRequest;
 use Application\Product\ViewModels\ProductShowViewModel;
@@ -27,14 +21,7 @@ use Domain\Product\DataObjects\ShowOrDeleteOneProductData;
 #[Prefix('products')]
 class ProductController
 {
-    public function __construct(
-        private ListAllProductsAction $listAllProductsAction,
-        private ShowOneProductAction $showOneProductAction,
-        private CreateProductAction $createProductAction,
-        private UpdateProductAction $updateProductAction,
-        private DeleteProductAction $deleteProductAction
-    ) {}
-
+    public function __construct() {}
 
     #[Get(
         uri: '/',
@@ -42,51 +29,52 @@ class ProductController
     )]
     public function listAll()
     {
-        return (new ListProductsViewModel((new ProductQueryBuilder()->listAll())))->toResponse();
+        return (new ListProductsViewModel())->toResponse();
     }
 
     #[Get(
         uri: '/{product}',
         name: 'products.show'
     )]
-
     public function show(Product $product)
     {
         $dto = new ShowOrDeleteOneProductData(id: $product->id);
-        return (new ProductShowViewModel(...$dto)->toResponse());
+        return (new ProductShowViewModel($dto))->toResponse();
     }
-
 
     #[Post(
         uri: '/',
         name: 'products.store'
     )]
-    public function store(CreateProductRequest $request)
+    public function store(CreateProductRequest $request, CreateProductAction $createProductAction)
     {
         $data = $request->validated();
         $dto = new CreateProductData(...$data);
-        return (new ProductViewModel($this->createProductAction->execute($dto)))->toResponse();
+        $resource = $createProductAction->execute($dto);
+        return (new ProductViewModel($resource))->toResponse();
     }
 
     #[Post(
         uri: '/{product}',
         name: 'products.update'
     )]
-    public function update(UpdateProductRequest $request, Product $product)
+    public function update(UpdateProductRequest $request, Product $product, UpdateProductAction $updateProductAction)
     {
         $data = $request->validated();
         $data['id'] = $product->id;
         $dto = new UpdateProductData(...$data);
-        return (new ProductViewModel($this->updateProductAction->execute($dto)))->toResponse();
+        $resource = $updateProductAction->execute($dto);
+        return (new ProductViewModel($resource))->toResponse();
     }
 
     #[Post(
         uri: '/{product}/delete',
         name: 'products.destroy'
     )]
-    public function destroy(Product $product)
+    public function destroy(Product $product, DeleteProductAction $deleteProductAction)
     {
         $dto = new ShowOrDeleteOneProductData(id: $product->id);
-        return (new ProductViewModel($this->deleteProductAction->execute($dto)))->toResponse();
+        $resource = $deleteProductAction->execute($dto);
+        return (new ProductViewModel($resource))->toResponse();
     }
 }

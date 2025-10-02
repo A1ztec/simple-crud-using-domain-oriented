@@ -4,18 +4,21 @@
 namespace Domain\Product\Actions;
 
 use Domain\Product\Models\Product;
+use Domain\Product\Resources\DeleteProductSuccessResource;
 use Illuminate\Support\Facades\Storage;
 use Domain\Product\DataObjects\ShowOrDeleteOneProductData;
+use Domain\Product\Resources\DeleteProductFailedResource;
 use Domain\Product\Resources\ProductResource;
+use Src\Domain\Product\Resources\Contracts\ProductResourceInterface;
 
 class DeleteProductAction
 {
-    public function execute(ShowOrDeleteOneProductData $dto) : ProductResource
+    public function execute(ShowOrDeleteOneProductData $dto): ProductResourceInterface
     {
         $product =  Product::query()->whereId($dto->id)->first();
 
         if (!$product) {
-            return ProductResource::error(message: "Product not found", code: 404);
+            return new DeleteProductFailedResource();
         }
 
 
@@ -27,6 +30,6 @@ class DeleteProductAction
 
         $product->delete();
 
-        return ProductResource::success(message: "Product deleted successfully");
+        return new DeleteProductSuccessResource();
     }
 }

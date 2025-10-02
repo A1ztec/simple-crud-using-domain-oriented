@@ -1,9 +1,9 @@
 <?php
 
-namespace Domain\Product\QueryBuilder;
+namespace Application\Product\QueryBuilders;
 
 use Domain\Product\Models\Product;
-use Illuminate\Database\Eloquent\Builder;
+
 
 class ProductQueryBuilder
 {
