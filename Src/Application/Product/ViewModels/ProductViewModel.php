@@ -4,7 +4,7 @@ namespace Application\Product\ViewModels;
 
 use League\Fractal\Serializer\JsonApiSerializer;
 use Application\Product\Transformers\ProductTransformer;
-use Src\Domain\Product\Resources\Contracts\ProductResourceInterface;
+use Domain\Product\Resources\Contracts\ProductResourceInterface;
 
 class ProductViewModel
 {

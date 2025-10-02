@@ -8,8 +8,7 @@ use Domain\Product\Resources\DeleteProductSuccessResource;
 use Illuminate\Support\Facades\Storage;
 use Domain\Product\DataObjects\ShowOrDeleteOneProductData;
 use Domain\Product\Resources\DeleteProductFailedResource;
-use Domain\Product\Resources\ProductResource;
-use Src\Domain\Product\Resources\Contracts\ProductResourceInterface;
+use Domain\Product\Resources\Contracts\ProductResourceInterface;
 
 class DeleteProductAction
 {

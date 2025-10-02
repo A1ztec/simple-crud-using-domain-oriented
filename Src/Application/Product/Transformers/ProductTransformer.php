@@ -11,10 +11,10 @@ class ProductTransformer extends TransformerAbstract
     {
 
         return [
-            'id' => $data->id,
-            'name' => $data->name,
-            'description' => $data->description,
-            'price' => $data->price,
+            'id' => $data->id ?? null,
+            'name' => $data->name ?? null,
+            'description' => $data->description ?? null,
+            'price' => $data->price ?? null,
             'image' => $data->image ? url($data->image) : null,
         ];
     }

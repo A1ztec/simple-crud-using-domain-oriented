@@ -9,7 +9,7 @@ use function Support\Helpers\UploadImage;
 use Domain\Product\DataObjects\UpdateProductData;
 use Domain\Product\Resources\UpdateProductFailedResource;
 use Domain\Product\Resources\UpdateProductSuccessResource;
-use Src\Domain\Product\Resources\Contracts\ProductResourceInterface;
+use Domain\Product\Resources\Contracts\ProductResourceInterface;
 
 class UpdateProductAction
 {

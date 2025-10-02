@@ -17,6 +17,7 @@ use Application\Product\Requests\UpdateProductRequest;
 use Application\Product\ViewModels\ProductShowViewModel;
 use Application\Product\ViewModels\ListProductsViewModel;
 use Domain\Product\DataObjects\ShowOrDeleteOneProductData;
+use Spatie\RouteAttributes\Attributes\Delete;
 
 #[Prefix('products')]
 class ProductController
@@ -67,7 +68,7 @@ class ProductController
         return (new ProductViewModel($resource))->toResponse();
     }
 
-    #[Post(
+    #[Delete(
         uri: '/{product}/delete',
         name: 'products.destroy'
     )]

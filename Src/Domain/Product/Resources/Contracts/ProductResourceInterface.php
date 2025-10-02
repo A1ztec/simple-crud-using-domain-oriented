@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Src\Domain\Product\Resources\Contracts;
+namespace Domain\Product\Resources\Contracts;
 
 
 interface ProductResourceInterface

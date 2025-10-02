@@ -7,7 +7,7 @@ use function Support\Helpers\UploadImage;
 use Domain\Product\DataObjects\CreateProductData;
 use Domain\Product\Resources\CreateProductFailedResource;
 use Domain\Product\Resources\CreateProductSuccessResource;
-use Src\Domain\Product\Resources\Contracts\ProductResourceInterface;
+use Domain\Product\Resources\Contracts\ProductResourceInterface;
 
 class CreateProductAction
 

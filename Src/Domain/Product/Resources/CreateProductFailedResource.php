@@ -4,7 +4,7 @@
 namespace Domain\Product\Resources;
 
 
-use Src\Domain\Product\Resources\Contracts\ProductResourceInterface;
+use Domain\Product\Resources\Contracts\ProductResourceInterface;
 
 class CreateProductFailedResource implements ProductResourceInterface
 {
