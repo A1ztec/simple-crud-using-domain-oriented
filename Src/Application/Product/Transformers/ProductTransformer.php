@@ -9,6 +9,9 @@ class ProductTransformer extends TransformerAbstract
 {
     public function transform($data)
     {
+        if (!$data) {
+            return [];
+        }
 
         return [
             'id' => $data->id ?? null,

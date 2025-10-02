@@ -5,6 +5,7 @@ namespace Application\Product\Controllers;
 use Domain\Product\Models\Product;
 use Spatie\RouteAttributes\Attributes\Get;
 use Spatie\RouteAttributes\Attributes\Post;
+use Spatie\RouteAttributes\Attributes\Delete;
 use Spatie\RouteAttributes\Attributes\Prefix;
 use Domain\Product\Actions\CreateProductAction;
 use Domain\Product\Actions\DeleteProductAction;
@@ -16,8 +17,8 @@ use Application\Product\Requests\CreateProductRequest;
 use Application\Product\Requests\UpdateProductRequest;
 use Application\Product\ViewModels\ProductShowViewModel;
 use Application\Product\ViewModels\ListProductsViewModel;
+use Application\Product\ViewModels\SimpleProductViewModel;
 use Domain\Product\DataObjects\ShowOrDeleteOneProductData;
-use Spatie\RouteAttributes\Attributes\Delete;
 
 #[Prefix('products')]
 class ProductController
@@ -76,6 +77,6 @@ class ProductController
     {
         $dto = new ShowOrDeleteOneProductData(id: $product->id);
         $resource = $deleteProductAction->execute($dto);
-        return (new ProductViewModel($resource))->toResponse();
+        return (new SimpleProductViewModel($resource))->toResponse();
     }
 }
