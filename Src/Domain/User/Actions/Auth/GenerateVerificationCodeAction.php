@@ -2,21 +2,25 @@
 
 namespace Domain\User\Actions\Auth;
 
-use Domain\User\DataObjects\Auth\ReSendVerificationEmailData;
 use Domain\User\Models\User;
-use Domain\User\Resources\UserResource;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Domain\User\Resources\UserResource;
+use Domain\User\Resources\UserNotFoundValidationResource;
+use Domain\User\Resources\Contracts\UserResourceInterface;
+use Domain\User\DataObjects\Auth\ReSendVerificationEmailData;
+use Domain\User\Resources\GenerateVerificationCodeFailedResource;
+use Domain\User\Resources\GenerateVerificationCodeSuccessResource;
 
 
 class GenerateVerificationCodeAction
 {
-    public function execute( ReSendVerificationEmailData $data): UserResource
+    public function execute( ReSendVerificationEmailData $data): UserResourceInterface
     {
         $user = User::query()->whereEmail($data->email)->first();
 
         if (!$user) {
-            return UserResource::error(message: 'User not found', code: 404);
+            return (new UserNotFoundValidationResource());
         }
 
 
@@ -31,11 +35,11 @@ class GenerateVerificationCodeAction
 
             DB::commit();
 
-            return  UserResource::success(data: $user, message: 'Verification code generated successfully', code: 200);
+            return (new GenerateVerificationCodeSuccessResource($user));
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Could not generate verification code: ' . $e->getMessage());
-            return UserResource::error(message: 'Could not generate verification code', code: 500);
+            return (new GenerateVerificationCodeFailedResource());
         }
     }
 }

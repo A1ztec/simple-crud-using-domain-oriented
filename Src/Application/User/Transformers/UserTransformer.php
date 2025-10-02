@@ -7,38 +7,7 @@ use Domain\User\Models\User;
 
 class UserTransformer extends TransformerAbstract
 {
-    public function transform($data)
-    {
-        if ($data instanceof User) {
-            return $this->transformUser($data);
-        }
-
-
-        if (is_array($data)) {
-            $result = [];
-
-
-            if (isset($data['token'])) {
-                $result['token'] = $data['token'];
-            }
-
-
-            if (isset($data['verification'])) {
-                $result['verification_message'] = $data['verification'];
-            }
-
-
-            if (isset($data['user']) && $data['user'] instanceof User) {
-                $result['user'] = $this->transformUser($data['user']);
-            }
-
-            return $result;
-        }
-
-        return [];
-    }
-
-    private function transformUser(User $user): array
+    public function transform(User $user)
     {
         return [
             'id' => $user->id,

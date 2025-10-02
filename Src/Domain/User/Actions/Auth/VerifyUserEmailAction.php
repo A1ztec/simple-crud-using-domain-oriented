@@ -5,10 +5,13 @@ namespace Domain\User\Actions\Auth;
 use Domain\User\Models\User;
 use Domain\User\Resources\UserResource;
 use Domain\User\DataObjects\Auth\VerifyEmailData;
+use Domain\User\Resources\UserVerifyEmailFailedResponse;
+use Domain\User\Resources\UserVerifyEmailSuccessResponse;
+use Domain\User\Resources\Contracts\UserResourceInterface;
 
 class VerifyUserEmailAction
 {
-    public function execute(VerifyEmailData $data): UserResource
+    public function execute(VerifyEmailData $data): UserResourceInterface
     {
         $user = User::query()->whereEmail($data->email)
             ->whereNotVerified()
@@ -17,7 +20,7 @@ class VerifyUserEmailAction
             ->first();
 
         if (!$user) {
-            return UserResource::error(message: 'Invalid or expired verification code', code: 400);
+            return new UserVerifyEmailFailedResponse();
         }
 
 
@@ -28,8 +31,6 @@ class VerifyUserEmailAction
         $user->save();
 
 
-        return UserResource::success(data: [
-            'user' => $user,
-        ], code: 200, message: 'Email verified successfully');
+        return (new UserVerifyEmailSuccessResponse(user: $user));
     }
 }

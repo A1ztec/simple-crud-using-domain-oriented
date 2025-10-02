@@ -19,8 +19,5 @@ class Product extends Model
         'created_at' => 'datetime',
     ];
 
-    public function newEloquentBuilder($query): ProductQueryBuilder
-    {
-        return new ProductQueryBuilder($query);
-    }
+    
 }

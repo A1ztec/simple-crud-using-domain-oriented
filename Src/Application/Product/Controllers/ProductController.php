@@ -17,8 +17,10 @@ use Domain\Product\Actions\ListAllProductsAction;
 use Domain\Product\DataObjects\CreateProductData;
 use Domain\Product\DataObjects\UpdateProductData;
 use Application\Product\ViewModels\ProductViewModel;
+use Domain\Product\QueryBuilder\ProductQueryBuilder;
 use Application\Product\Requests\CreateProductRequest;
 use Application\Product\Requests\UpdateProductRequest;
+use Application\Product\ViewModels\ProductShowViewModel;
 use Application\Product\ViewModels\ListProductsViewModel;
 use Domain\Product\DataObjects\ShowOrDeleteOneProductData;
 
@@ -40,7 +42,7 @@ class ProductController
     )]
     public function listAll()
     {
-        return (new ListProductsViewModel($this->listAllProductsAction->execute()))->toResponse();
+        return (new ListProductsViewModel((new ProductQueryBuilder()->listAll())))->toResponse();
     }
 
     #[Get(
@@ -51,8 +53,9 @@ class ProductController
     public function show(Product $product)
     {
         $dto = new ShowOrDeleteOneProductData(id: $product->id);
-        return (new ProductViewModel($this->showOneProductAction->execute($dto)))->toResponse();
+        return (new ProductShowViewModel(...$dto)->toResponse());
     }
+
 
     #[Post(
         uri: '/',

@@ -17,6 +17,7 @@ use Application\User\Requests\Auth\VerifyEmailRequest;
 use Application\User\Requests\Auth\RegisterUserRequest;
 use Domain\User\Actions\Auth\SendVerificationEmailAction;
 use Domain\User\DataObjects\Auth\ReSendVerificationEmailData;
+use Spatie\RouteAttributes\Attributes\Middleware;
 
 #[Prefix('auth')]
 class AuthController extends Controller
@@ -37,7 +38,8 @@ class AuthController extends Controller
 
     #[Post(
         uri: '/login',
-        name: 'auth.login'
+        name: 'auth.login',
+        middleware: ['throttle:5,1']
     )]
     public function login(LoginRequest $request, LoginUserAction $loginUserAction)
     {

@@ -5,6 +5,10 @@ namespace Domain\User\Actions\Auth;
 
 use Domain\User\DataObjects\Auth\LoginUserData;
 use Domain\User\Models\User;
+use Domain\User\Resources\Contracts\UserResourceInterface;
+use Domain\User\Resources\UserFailedToCreateTokenResponse;
+use Domain\User\Resources\UserLoginFailedResponse;
+use Domain\User\Resources\UserLoginSuccessResponse;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
@@ -12,30 +16,30 @@ use Domain\User\Resources\UserResource;
 
 class LoginUserAction
 {
-    public function execute(LoginUserData $data): UserResource
+    public function execute(LoginUserData $data): UserResourceInterface
     {
         $user = User::query()->whereEmail($data->email)->first();
 
         $validPassword = $user ? Hash::check($data->password, $user->password) : false;
 
         if (!$user || !$validPassword) {
-            return UserResource::error(message: 'Invalid credentials', code: 401);
+            return (new UserLoginFailedResponse(message: 'Invalid credentials'));
         }
 
         if (!$user->hasVerifiedEmail()) {
-            return UserResource::error(message: 'Email not verified', code: 400);
+            return (new UserLoginFailedResponse(message: 'Email not verified'));
         }
 
         try {
             $token = JWTAuth::fromUser($user);
         } catch (\Exception $e) {
             Log::error('Could not create token for user: ' . $e->getMessage());
-            return UserResource::error(message: 'Could not create token', code: 500);
+            return (new UserFailedToCreateTokenResponse());
         }
 
-        return UserResource::success(data: [
+        return (new UserLoginSuccessResponse(data: [
             'token' => $token,
             'user' => $user,
-        ], code: 200, message: 'Login successful');
+        ]));
     }
 }
