@@ -3,12 +3,12 @@
 namespace Domain\User\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Notifications\Notifiable;
-use Domain\User\QueryBuilders\UserQueryBuilder;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Application\User\QueryBuilders\UserQueryBuilder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements MustVerifyEmail, JWTSubject
 {

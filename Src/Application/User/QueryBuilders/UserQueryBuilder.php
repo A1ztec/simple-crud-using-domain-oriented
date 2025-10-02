@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Domain\User\QueryBuilders;
+namespace Application\User\QueryBuilders;
 
 use Illuminate\Database\Eloquent\Builder;
 
