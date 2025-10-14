@@ -64,9 +64,7 @@ class ProductController
     {
         $data = $request->validated();
         $data['id'] = $product->id;
-        $dto = new UpdateProductData(...$data);
-        $resource = $updateProductAction->execute($dto);
-        return (new ProductViewModel($resource))->toResponse();
+        return (new ProductViewModel($updateProductAction->execute(new UpdateProductData($data))))->toResponse();
     }
 
     #[Delete(
