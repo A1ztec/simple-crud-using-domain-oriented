@@ -3,6 +3,7 @@
 namespace Domain\User\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Domain\Payment\Models\Transaction;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -58,6 +59,11 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
     public function newEloquentBuilder($query): UserQueryBuilder
     {
         return new UserQueryBuilder($query);
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
     }
 
     public function getJWTIdentifier()
