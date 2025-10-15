@@ -7,7 +7,7 @@ use Domain\Payment\Models\Transaction;
 
 interface PaymentGatewayInterface
 {
-    public function processPayment(Transaction $transaction): mixed;
+    public function processPayment(Transaction $transaction): Transaction;
 
     public function getGatewayName(): string;
 

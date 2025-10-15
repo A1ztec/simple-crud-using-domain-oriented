@@ -20,19 +20,22 @@ class CodGateway extends BaseGateway
         return $transaction->amount > 0;
     }
 
-    public function processPayment(Transaction $transaction): mixed
+    public function processPayment(Transaction $transaction): Transaction
     {
-        if ($transaction->status == Status::SUCCESS->value) {
+        if (!$this->validateTransactionData($transaction)) {
+            $transaction->update(['status' => Status::FAILED]);
             return $transaction;
         }
-        
+
+        // Simulate Cash on Delivery processing delay
+
         $transaction->update(['status' => Status::PROCESSING]);
 
         sleep(5);
 
         $referenceId = $this->generateReferenceId();
 
-        // toDo: Logic for Cash on Delivery payment processing
+        // toDo: Logic for Cash on Delivery payment processing ...finished
 
         $data = [
             'user_id' => Auth::id(),

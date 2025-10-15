@@ -3,10 +3,13 @@
 namespace App\Jobs;
 
 use Exception;
+use Faker\Provider\ar_EG\Payment;
 use Illuminate\Support\Facades\Log;
+use Domain\Payment\Models\Transaction;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Domain\Payment\Contracts\PaymentGatewayInterface;
 
 class GatewayPaymentProcess implements ShouldQueue
 {
@@ -24,7 +27,7 @@ class GatewayPaymentProcess implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct()
+    public function __construct(private PaymentGatewayInterface $gateway, private Transaction $transaction)
     {
         //
     }
@@ -34,7 +37,7 @@ class GatewayPaymentProcess implements ShouldQueue
      */
     public function handle(): void
     {
-        //
+        $this->gateway->processPayment($this->transaction);
     }
 
     public function failed(Exception $e)

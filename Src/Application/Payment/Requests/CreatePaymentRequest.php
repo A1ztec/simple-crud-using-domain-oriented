@@ -24,6 +24,7 @@ class CreatePaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'user_id' => ['required', 'exists:users,id'],
             'amount' => ['required', 'numeric', 'min:1'],
             'gateway' => ['required', 'string', Rule::enum(Gateway::class)],
         ];
