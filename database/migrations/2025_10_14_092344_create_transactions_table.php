@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignIdFor(User::class);
             $table->float('amount');
             $table->string('status');
-            $table->string('reference_id')->unique();
+            $table->string('reference_id')->unique()->nullable();
             $table->string('gateway');
             $table->json('metadata')->nullable();
             $table->json('gateway_response')->nullable();

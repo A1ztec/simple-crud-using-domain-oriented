@@ -20,10 +20,10 @@ class IntializePaymentAction
 
 
 
-    public function execute(CreateTransactionDto $dto, CreateTransactionAction $action): PaymentResourceInterface
+    public function execute(CreateTransactionDto $dto): PaymentResourceInterface
     {
 
-        $resource = $action->execute($dto);
+        $resource = new CreateTransactionAction()->execute($dto);
         if (!$resource->isSuccess()) {
             return $resource;
         }

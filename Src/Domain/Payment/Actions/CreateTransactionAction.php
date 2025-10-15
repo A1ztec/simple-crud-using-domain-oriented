@@ -23,6 +23,7 @@ class CreateTransactionAction
                 'amount' => $data->amount,
                 'gateway' => $data->gateway,
                 'status' => $data->status ?? Status::PENDING->value,
+                
             ]);
             return new CreateTransactionSuccessResource($transaction);
         } catch (Exception $e) {

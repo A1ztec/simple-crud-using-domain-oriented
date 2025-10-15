@@ -38,6 +38,8 @@ class GatewayPaymentProcess implements ShouldQueue
     public function handle(): void
     {
         $this->gateway->processPayment($this->transaction);
+
+       
     }
 
     public function failed(Exception $e)
