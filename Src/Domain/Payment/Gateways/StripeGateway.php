@@ -4,6 +4,7 @@ namespace Domain\Payment\Gateways;
 
 use Domain\Payment\Enums\Status;
 use Domain\Payment\Enums\Gateway;
+use Illuminate\Support\Facades\Log;
 use Domain\Payment\Models\Transaction;
 use Domain\Payment\Contracts\BaseGateway;
 use Domain\Payment\Actions\UpdateTransactionAction;
@@ -22,60 +23,45 @@ class StripeGateway extends BaseGateway
             $transaction->update(['status' => Status::FAILED]);
             return $transaction;
         }
+
+        // Generate reference ID
         $referenceId = $this->generateReferenceId();
 
-
+        // Simulate Stripe API call
         $success = rand(0, 1) == 1;
 
+
+
         if ($success) {
-            $data =  [
-                'user_id' => $transaction->user->id,
-                'status' => Status::SUCCESS->value,
-                'amount' => $transaction->amount * 100,
-                'reference_id' => $referenceId,
-                'gateway' => $this->getGatewayName(),
-                'meta_data' => [
+            $dto = new UpdateTransactionDto(
+                id: $transaction->id,
+                status: Status::SUCCESS->value,
+                reference_id: $referenceId,
+                metadata: [
                     'transaction_id' => 'txn_' . uniqid(),
                     'payment_method' => 'Credit Card',
                     'message' => 'Payment processed successfully via Stripe.',
                 ],
-                'gateway_response' => [
+                gateway_response: [
                     'id' => 'ch_' . uniqid(),
                     'object' => 'charge',
                     'status' => 'succeeded',
                     'paid' => true,
                     'created' => time(),
                 ],
-            ];
-            $transaction = $this->updateTransaction($transaction, $data);
-            return $transaction;
+            );
+        } else {
+            $dto = new UpdateTransactionDto(
+                id: $transaction->id,
+                status: Status::FAILED->value,
+                reference_id: $referenceId,
+            );
         }
-
-
-        $data =  [
-            'user_id' => $transaction->user->id,
-            'status' => Status::FAILED->value,
-            'amount' => $transaction->amount,
-            'reference_id' => $referenceId,
-        ];
-        $transaction = $this->updateTransaction($transaction, $data);
-        return $transaction;
-    }
-
-    private function updateTransaction(Transaction $transaction, array $data): Transaction
-    {
-
-        $dto = new UpdateTransactionDto(
-            id: $transaction->id,
-            amount: $data['amount'],
-            status: $data['status'],
-            reference_id: $data['reference_id'],
-            metadata: $data['meta_data'] ?? null,
-            gateway_response: $data['gateway_response'] ?? null,
-        );
 
         $action = new UpdateTransactionAction();
         $resource = $action->execute($dto);
+
+        Log::info('Stripe Gateway Response', ['response' => $resource->getData()]);
 
         return $resource->getData();
     }

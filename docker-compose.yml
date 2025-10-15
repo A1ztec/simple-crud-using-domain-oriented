@@ -5,12 +5,6 @@ services:
     volumes:
       - .:/var/www
     restart: unless-stopped
-    environment:
-      - "DB_HOST=db"
-      - "DB_PORT=5432"
-      - "DB_DATABASE=simple_crud_db"
-      - "DB_USERNAME=root"
-      - "DB_PASSWORD=root"
     depends_on:
       - db
     networks:
@@ -29,6 +23,14 @@ services:
        - simple-crud-pgsql:/var/lib/postgresql/data
      networks:
        - simple-crud-network
+
+  redis:
+      image: redis:latest
+      container_name: crud-using-domain-oriented-redis-container
+      networks:
+          - simple-crud-network
+      restart: unless-stopped
+
   nginx:
     image: nginx:alpine
     container_name: crud-using-domain-oriented-nginx-container

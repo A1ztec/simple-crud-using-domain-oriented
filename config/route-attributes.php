@@ -24,11 +24,13 @@ return [
             'namespace' => 'Application\Product\Controllers',
             'prefix' => 'api/v1',
             'middleware' => ['jwt.auth'],
+        ],
 
         base_path('Src/Application/Payment/Controllers') => [
             'namespace' => 'Application\Payment\Controllers',
             'prefix' => 'api/v1',
             'middleware' => ['jwt.auth'],
+
         ]
         /*
         app_path('Http/Controllers/Api') => [

@@ -14,6 +14,7 @@ class Transaction extends Model
         'amount',
         'gateway',
         'user_id',
+        'reference_id',
         'gateway_response',
         'metadata'
     ];

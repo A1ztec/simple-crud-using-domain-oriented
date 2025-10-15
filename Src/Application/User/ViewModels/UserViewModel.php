@@ -16,13 +16,12 @@ class UserViewModel
 
     public function toResponse()
     {
-    
+
         //  dd(function_exists('fractal'));
         // dd($this->resource->getData());
 
         return  fractal()->item($this->resource->getData()['user'] ?? $this->resource->getData())
             ->transformWith(new UserTransformer())
-            ->serializeWith(new JsonApiSerializer())
             ->addMeta(['token_type' => 'Bearer', 'token' => $this->resource->getData()['token'] ?? null, 'success' => $this->resource->isSuccess() ?? null, 'code' => $this->resource->getCode()])
             ->toArray();
     }

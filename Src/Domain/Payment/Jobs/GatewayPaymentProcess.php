@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs;
+namespace Domain\Payment\Jobs;
 
 use Exception;
 use Faker\Provider\ar_EG\Payment;
@@ -37,9 +37,8 @@ class GatewayPaymentProcess implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->gateway->processPayment($this->transaction);
 
-       
+        $this->gateway->processPayment($this->transaction);
     }
 
     public function failed(Exception $e)

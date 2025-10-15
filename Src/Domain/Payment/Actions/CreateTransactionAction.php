@@ -23,7 +23,9 @@ class CreateTransactionAction
                 'amount' => $data->amount,
                 'gateway' => $data->gateway,
                 'status' => $data->status ?? Status::PENDING->value,
-                
+                'reference_id' => null,
+                'metadata' => null,
+                'gateway_response' => null,
             ]);
             return new CreateTransactionSuccessResource($transaction);
         } catch (Exception $e) {

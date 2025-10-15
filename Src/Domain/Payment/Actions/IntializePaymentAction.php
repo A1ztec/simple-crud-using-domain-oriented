@@ -1,42 +1,39 @@
 <?php
 
-
 namespace Domain\Payment\Actions;
 
-
 use Exception;
-use Faker\Provider\ar_EG\Payment;
-use App\Jobs\GatewayPaymentProcess;
 use Domain\Payment\Gateways\CodGateway;
 use Domain\Payment\Factories\PaymentGatewayFactory;
 use Domain\Payment\DataObjects\CreateTransactionDto;
 use Domain\Payment\Resources\IntializePaymentFailedResource;
 use Domain\Payment\Resources\IntializePaymentSuccessResource;
-use Domain\Payment\Resources\UpdateTransactionSuccessResource;
 use Domain\Payment\Resources\Contracts\PaymentResourceInterface;
+use Domain\Payment\Jobs\GatewayPaymentProcess;
 
 class IntializePaymentAction
 {
-
-
-
     public function execute(CreateTransactionDto $dto): PaymentResourceInterface
     {
 
-        $resource = new CreateTransactionAction()->execute($dto);
+        $resource = (new CreateTransactionAction())->execute($dto);
+
         if (!$resource->isSuccess()) {
             return $resource;
         }
-        $data = $resource->getData();
-        $gateway = new PaymentGatewayFactory()->make($dto->gateway);
-        if (!$gateway instanceof CodGateway) {
-            GatewayPaymentProcess::dispatch($gateway, $data)->onQueue('payments');
-            return new IntializePaymentSuccessResource();
-        }
+
+        $transaction = $resource->getData();
 
         try {
-            $transaction = $gateway->processPayment($data);
-            return new IntializePaymentSuccessResource($transaction);
+            $gateway = (new PaymentGatewayFactory())->make($dto->gateway);
+
+
+            if ($gateway instanceof CodGateway) {
+                $processedTransaction = $gateway->processPayment($transaction);
+                return new IntializePaymentSuccessResource($processedTransaction);
+            }
+            GatewayPaymentProcess::dispatch($gateway, $transaction)->onQueue('payments')->delay(now()->addSeconds(4));
+            return new IntializePaymentSuccessResource();
         } catch (Exception $e) {
             return new IntializePaymentFailedResource();
         }
