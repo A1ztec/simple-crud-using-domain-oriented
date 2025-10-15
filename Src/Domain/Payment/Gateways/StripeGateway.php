@@ -1,30 +1,31 @@
 <?php
 
+namespace Domain\Payment\Gateways;
 
-namespace Domain\Gateways\Gateways;
-
-use Illuminate\Auth\Access\Gate;
-use Domain\Payment\Enums\Gateway;
-use Domain\Payment\Contracts\BaseGateway;
 use Domain\Payment\Enums\Status;
+use Domain\Payment\Enums\Gateway;
+use Domain\Payment\Models\Transaction;
+use Domain\Payment\Contracts\BaseGateway;
 
 class StripeGateway extends BaseGateway
 {
-
-    public function validateTransactionData(array $data): bool
+    public function validateTransactionData(Transaction $transaction): bool
     {
-        return isset($data['amount']) && $data['amount'] > 0;
+        return $transaction->amount > 0 && $transaction->user_id !== null;
     }
-    public function processPayment(array $data): array
-    {
 
+    public function processPayment(Transaction $transaction): array
+    {
         $referenceId = $this->generateReferenceId();
+
+        // Simulate Stripe API call with random success/failure
         $success = rand(0, 1) == 1;
+
         if ($success) {
             return [
+                'user_id' => $transaction->user->id,
                 'status' => Status::SUCCESS->value,
-                'amount' => $data['amount'],
-                'currency' => $data['currency'],
+                'amount' => $transaction->amount * 100,
                 'reference_id' => $referenceId,
                 'gateway' => $this->getGatewayName(),
                 'meta_data' => [
@@ -34,32 +35,20 @@ class StripeGateway extends BaseGateway
                 ],
                 'gateway_response' => [
                     'id' => 'ch_' . uniqid(),
+                    'object' => 'charge',
                     'status' => 'succeeded',
-                    'amount' => $data['amount'],
-                    'currency' => $data['currency'],
+                    'paid' => true,
+                    'created' => time(),
                 ],
             ];
-        };
+        }
 
-
+        // Simulate failure
         return [
+            'user_id' => $transaction->user->id,
             'status' => Status::FAILED->value,
-            'amount' => $data['amount'],
+            'amount' => $transaction->amount,
             'reference_id' => $referenceId,
-            'gateway' => $this->getGatewayName(),
-            'meta_data' => [
-                'estimated_delivery' => now()->addDays(5)->toDateString(),
-                'error_code' => 'card_declined',
-                'error_message' => 'The card was declined.',
-            ],
-            'gateway_response' => [
-                'object' => 'payment_intent',
-                'amount' => $data['amount'],
-                'amount_capturable' => 0,
-                'amount_details' => [
-                    'tip' => []
-                ],
-            ],
         ];
     }
 

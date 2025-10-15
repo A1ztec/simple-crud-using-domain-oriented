@@ -11,5 +11,5 @@ abstract class BaseGateway implements PaymentGatewayInterface
         return strtoupper(uniqid($this->getGatewayName() . '_'));
     }
 
-    public abstract function getGatewayName(): string;
+    
 }

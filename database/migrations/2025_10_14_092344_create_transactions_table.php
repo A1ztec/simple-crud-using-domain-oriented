@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('gateway');
             $table->json('metadata')->nullable();
             $table->json('gateway_response')->nullable();
+            $table->string('idempotency_key')->unique();
             $table->timestamps();
 
             $table->index(['user_id', 'status', 'gateway']);

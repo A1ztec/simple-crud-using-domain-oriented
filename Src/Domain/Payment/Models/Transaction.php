@@ -15,8 +15,7 @@ class Transaction extends Model
         'gateway',
         'user_id',
         'gateway_response',
-        'metaadata'
-
+        'metadata'
     ];
 
     protected function casts()

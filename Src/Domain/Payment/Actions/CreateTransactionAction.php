@@ -7,23 +7,26 @@ use Exception;
 use Domain\Payment\Enums\Status;
 use Domain\Payment\Models\Transaction;
 use Domain\Payment\DataObjects\CreateTransactionDto;
+use Domain\Payment\Resources\CreateTransactionFailedResource;
+use Domain\Payment\Resources\CreateTransactionSuccessResource;
+use Domain\Payment\Resources\Contracts\PaymentResourceInterface;
 
 class CreateTransactionAction
 
 {
-    public function execute(CreateTransactionDto $data): mixed
+    public function execute(CreateTransactionDto $data): PaymentResourceInterface
     {
         // Logic to create a transaction
-
-
-        $data->status = Status::PENDING->value;
-        $data = (array) $data;
-        // dd($data);
         try {
-            $transaction = Transaction::create(...$data);
-            return $transaction;
+            $transaction = Transaction::create([
+                'user_id' => $data->user_id,
+                'amount' => $data->amount,
+                'gateway' => $data->gateway,
+                'status' => $data->status ?? Status::PENDING->value,
+            ]);
+            return new CreateTransactionSuccessResource($transaction);
         } catch (Exception $e) {
-            return $e->getMessage();
+            return new CreateTransactionFailedResource();
         }
     }
 }
