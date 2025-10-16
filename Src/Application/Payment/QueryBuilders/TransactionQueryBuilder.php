@@ -6,8 +6,8 @@ use Domain\Payment\Models\Transaction;
 
 class TransactionQueryBuilder
 {
-    public function getTransactionById(int $id): ?Transaction
+    public function getTransactionByReferenceId(string $referenceId): ?Transaction
     {
-        return Transaction::with('user')->find($id);
+        return Transaction::with('user')->where('reference_id', $referenceId)->first();
     }
 }

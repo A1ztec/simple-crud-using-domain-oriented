@@ -6,11 +6,11 @@ use Domain\Payment\Enums\Status;
 use Domain\Payment\Enums\Gateway;
 use Illuminate\Support\Facades\Log;
 use Domain\Payment\Models\Transaction;
-use Domain\Payment\Contracts\BaseGateway;
 use Domain\Payment\Actions\UpdateTransactionAction;
 use Domain\Payment\DataObjects\UpdateTransactionDto;
+use Domain\Payment\Contracts\PaymentGatewayInterface;
 
-class StripeGateway extends BaseGateway
+class StripeGateway  implements PaymentGatewayInterface
 {
     public function validateTransactionData(Transaction $transaction): bool
     {
@@ -19,15 +19,18 @@ class StripeGateway extends BaseGateway
 
     public function processPayment(Transaction $transaction): Transaction
     {
+
+        Log::channel("payment")->info("status before update: " . $transaction->status->value);
+        $transaction->update(['status' => Status::PROCESSING]);
+
         if (!$this->validateTransactionData($transaction)) {
             $transaction->update(['status' => Status::FAILED]);
             return $transaction;
         }
 
-        // Generate reference ID
-        $referenceId = $this->generateReferenceId();
+        Log::channel("payment")->info("status after update: " . $transaction->status->value);
 
-        // Simulate Stripe API call
+
         $success = rand(0, 1) == 1;
 
 
@@ -36,9 +39,8 @@ class StripeGateway extends BaseGateway
             $dto = new UpdateTransactionDto(
                 id: $transaction->id,
                 status: Status::SUCCESS->value,
-                reference_id: $referenceId,
+                reference_id: $transaction->reference_id,
                 metadata: [
-                    'transaction_id' => 'txn_' . uniqid(),
                     'payment_method' => 'Credit Card',
                     'message' => 'Payment processed successfully via Stripe.',
                 ],
@@ -54,14 +56,16 @@ class StripeGateway extends BaseGateway
             $dto = new UpdateTransactionDto(
                 id: $transaction->id,
                 status: Status::FAILED->value,
-                reference_id: $referenceId,
+                reference_id: $transaction->reference_id,
+                metadata: [
+                    'payment_method' => 'Credit Card',
+                    'message' => 'Payment failed via Stripe.',
+                ],
             );
         }
 
         $action = new UpdateTransactionAction();
         $resource = $action->execute($dto);
-
-        Log::info('Stripe Gateway Response', ['response' => $resource->getData()]);
 
         return $resource->getData();
     }

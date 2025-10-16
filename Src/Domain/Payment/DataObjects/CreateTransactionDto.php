@@ -9,6 +9,7 @@ class CreateTransactionDto
         public int $user_id,
         public float $amount,
         public string $gateway,
+        public ?string $reference_id = null,
         public ?string $status = null,
     ) {}
 }

@@ -41,6 +41,6 @@ class PaymentController
     {
         $data = $request->validated();
         $dto = new ShowTransactionDto(...$data);
-        return (new TransactionShowViewModel($dto->id))->toResponse();
+        return (new TransactionShowViewModel($dto->reference_id))->toResponse();
     }
 }

@@ -16,7 +16,7 @@ class GatewayPaymentProcess implements ShouldQueue
     use Queueable;
 
 
-    public $tries = 3;
+    public $tries = 1;
 
     public $timeout = 120;
 
@@ -37,12 +37,20 @@ class GatewayPaymentProcess implements ShouldQueue
      */
     public function handle(): void
     {
-
-        $this->gateway->processPayment($this->transaction);
+        throw new Exception("Simulated job failure for testing retries");
+        $data = $this->gateway->processPayment($this->transaction);
+        Log::channel('payment')->info('Payment processed', ['data' => $data]);
     }
 
     public function failed(Exception $e)
     {
-        Log::error('Payment Job failed: ' . $e->getMessage());
+        Log::channel('payment')->error('Payment Job failed: ' . $e->getMessage());
+        $this->transaction->update([
+            'status' => 'failed',
+            'gateway_response' => [
+                'error' => $e->getMessage()
+            ],
+            'failed_at' => now()
+        ]);
     }
 }

@@ -24,7 +24,7 @@ class CheckTransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => ['required', 'exists:transactions,id'],
+            'reference_id' => ['required', 'exists:transactions,reference_id'],
         ];
     }
 }

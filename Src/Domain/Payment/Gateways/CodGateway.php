@@ -3,13 +3,14 @@
 namespace Domain\Payment\Gateways;
 
 use Domain\Payment\Actions\UpdateTransactionAction;
+use Domain\Payment\Contracts\PaymentGatewayInterface;
 use Domain\Payment\DataObjects\UpdateTransactionDto;
 use Domain\Payment\Enums\Status;
 use Domain\Payment\Enums\Gateway;
 use Domain\Payment\Models\Transaction;
 use Domain\Payment\Contracts\BaseGateway;
 
-class CodGateway extends BaseGateway
+class CodGateway implements PaymentGatewayInterface
 {
     public function validateTransactionData(Transaction $transaction): bool
     {
@@ -30,13 +31,12 @@ class CodGateway extends BaseGateway
         sleep(5);
 
 
-        $referenceId = $this->generateReferenceId();
 
 
         $dto = new UpdateTransactionDto(
             id: $transaction->id,
             status: Status::SUCCESS->value,
-            reference_id: $referenceId,
+            reference_id: $transaction->reference_id,
             metadata: [
                 'estimated_delivery' => now()->addDays(5)->toDateString(),
                 'payment_method' => 'Cash on Delivery',
@@ -45,7 +45,7 @@ class CodGateway extends BaseGateway
             gateway_response: [
                 'gateway' => $this->getGatewayName(),
                 'processed_at' => now()->toDateTimeString(),
-                'reference' => $referenceId,
+                'reference' => $transaction->reference_id,
             ]
         );
 

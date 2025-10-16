@@ -10,7 +10,7 @@ use Application\Payment\QueryBuilders\TransactionQueryBuilder;
 class TransactionShowViewModel
 {
     use apiResponse;
-    public function __construct(private int $transactionId) {}
+    public function __construct(private string $referenceId) {}
 
     public function toResponse(): mixed
     {
@@ -33,6 +33,6 @@ class TransactionShowViewModel
 
     private function getData()
     {
-        return (new TransactionQueryBuilder())->getTransactionById($this->transactionId);
+        return (new TransactionQueryBuilder())->getTransactionByReferenceId($this->referenceId);
     }
 }

@@ -7,6 +7,6 @@ namespace Domain\Payment\DataObjects;
 class ShowTransactionDto
 {
     public function __construct(
-        public int $id,
+        public string $reference_id,
     ) {}
 }

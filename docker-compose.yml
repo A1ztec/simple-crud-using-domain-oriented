@@ -5,6 +5,12 @@ services:
     volumes:
       - .:/var/www
     restart: unless-stopped
+    environment:
+      - "DB_HOST=db"
+      - "DB_PORT=5432"
+      - "DB_DATABASE=simple_crud_db"
+      - "DB_USERNAME=root"
+      - "DB_PASSWORD=root"
     depends_on:
       - db
     networks:

@@ -8,6 +8,8 @@ use Domain\Payment\Resources\Contracts\PaymentResourceInterface;
 
 class CreateTransactionFailedResource implements PaymentResourceInterface
 {
+    public function __construct(private ?string $message = null) {}
+
     public function isSuccess(): bool
     {
         return false;
@@ -20,7 +22,7 @@ class CreateTransactionFailedResource implements PaymentResourceInterface
 
     public function getMessage(): string
     {
-        return 'Payment creation failed';
+        return $this->message ?? 'Failed to create transaction.';
     }
 
     public function getData(): null

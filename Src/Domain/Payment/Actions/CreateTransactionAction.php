@@ -10,20 +10,39 @@ use Domain\Payment\DataObjects\CreateTransactionDto;
 use Domain\Payment\Resources\CreateTransactionFailedResource;
 use Domain\Payment\Resources\CreateTransactionSuccessResource;
 use Domain\Payment\Resources\Contracts\PaymentResourceInterface;
+use Spatie\RouteAttributes\Attributes\Where;
 
 class CreateTransactionAction
 
 {
     public function execute(CreateTransactionDto $data): PaymentResourceInterface
     {
-        // Logic to create a transaction
+        //toDo : prevent duplicate transaction for same user with same amount and same gateway
+
+
+        //simulation of duplicate transaction prevention logic
+        
+        // $exists = Transaction::where('amount', $data->amount)
+        //     ->where('user_id', $data->user_id)
+        //     ->where('gateway', $data->gateway)
+        //     ->whereIn('status', [Status::PENDING, Status::PROCESSING])
+        //     ->first();
+
+        // if ($exists) {
+        //     return new CreateTransactionFailedResource(message: 'Duplicate transaction detected for the same user with the same amount and gateway');
+        // }
+
+        $gatewayValue = $data->gateway;
+        $data->reference_id = strtoupper(uniqid($gatewayValue . '_'));
+
+
         try {
             $transaction = Transaction::create([
                 'user_id' => $data->user_id,
                 'amount' => $data->amount,
-                'gateway' => $data->gateway,
+                'gateway' => $gatewayValue,
                 'status' => $data->status ?? Status::PENDING->value,
-                'reference_id' => null,
+                'reference_id' => $data->reference_id,
                 'metadata' => null,
                 'gateway_response' => null,
             ]);
