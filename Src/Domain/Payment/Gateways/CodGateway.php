@@ -31,8 +31,6 @@ class CodGateway implements PaymentGatewayInterface
         sleep(5);
 
 
-
-
         $dto = new UpdateTransactionDto(
             id: $transaction->id,
             status: Status::SUCCESS->value,

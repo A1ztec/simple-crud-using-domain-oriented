@@ -38,10 +38,6 @@ class GatewayPaymentProcess implements ShouldQueue
      */
     public function handle(): void
     {
-        if (in_array($this->transaction->status, [Status::PENDING->value, Status::PROCESSING->value])) {
-            Log::channel('payment')->info('Transaction already processed, skipping.', ['transaction_id' => $this->transaction->id, 'status' => $this->transaction->status]);
-            return;
-        }
         // throw new Exception("Simulated job failure for testing retries");
         $data = $this->gateway->processPayment($this->transaction);
         Log::channel('payment')->info('Payment processed', ['data' => $data]);
