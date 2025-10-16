@@ -3,6 +3,7 @@
 namespace Domain\Payment\Jobs;
 
 use Exception;
+use Domain\Payment\Enums\Status;
 use Faker\Provider\ar_EG\Payment;
 use Illuminate\Support\Facades\Log;
 use Domain\Payment\Models\Transaction;
@@ -16,7 +17,7 @@ class GatewayPaymentProcess implements ShouldQueue
     use Queueable;
 
 
-    public $tries = 1;
+    public $tries = 3;
 
     public $timeout = 120;
 
@@ -37,6 +38,10 @@ class GatewayPaymentProcess implements ShouldQueue
      */
     public function handle(): void
     {
+        if (in_array($this->transaction->status, [Status::PENDING->value, Status::PROCESSING->value])) {
+            Log::channel('payment')->info('Transaction already processed, skipping.', ['transaction_id' => $this->transaction->id, 'status' => $this->transaction->status]);
+            return;
+        }
         // throw new Exception("Simulated job failure for testing retries");
         $data = $this->gateway->processPayment($this->transaction);
         Log::channel('payment')->info('Payment processed', ['data' => $data]);
