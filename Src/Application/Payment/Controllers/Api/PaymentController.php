@@ -27,9 +27,7 @@ class PaymentController
     {
         $data = $request->validated();
         $data['user_id'] = Auth::id();
-        $dto = new CreateTransactionDto(...$data);
-        $resource = $action->execute($dto);
-        return (new TransactionViewModel())->toResponse($resource);
+        return (new TransactionViewModel())->toResponse($action->execute(new CreateTransactionDto(...$data)));
     }
 
     #[Post(
