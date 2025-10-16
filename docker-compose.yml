@@ -5,12 +5,6 @@ services:
     volumes:
       - .:/var/www
     restart: unless-stopped
-    environment:
-      - "DB_HOST=db"
-      - "DB_PORT=5432"
-      - "DB_DATABASE=simple_crud_db"
-      - "DB_USERNAME=root"
-      - "DB_PASSWORD=root"
     depends_on:
       - db
     networks:
@@ -26,7 +20,7 @@ services:
      ports:
        - "5432:5432"
      volumes:
-       - simple-crud-pgsql:/var/lib/postgresql/data
+       - crud-pgsql:/var/lib/postgresql/data
      networks:
        - simple-crud-network
 
@@ -52,7 +46,7 @@ services:
         - simple-crud-network
 
 volumes:
-   simple-crud-pgsql:
+   crud-pgsql:
 networks:
   simple-crud-network:
     driver: bridge

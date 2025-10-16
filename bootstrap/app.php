@@ -24,43 +24,43 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $api = new class {
-            use apiResponse;
-        };
+        // $api = new class {
+        //     use apiResponse;
+        // };
 
-        $exceptions->render(function (Throwable $e, $request) use ($api) {
-            if ($request->expectsJson() || $request->is('api/*') || $request->wantsJson()) {
-                if ($e instanceof ModelNotFoundException) {
-                    return $api->errorResponse(__('Resource not found.'), 404);
-                }
+        // $exceptions->render(function (Throwable $e, $request) use ($api) {
+        //     if ($request->expectsJson() || $request->is('api/*') || $request->wantsJson()) {
+        //         if ($e instanceof ModelNotFoundException) {
+        //             return $api->errorResponse(__('Resource not found.'), 404);
+        //         }
 
-                if ($e instanceof NotFoundHttpException) {
-                    return $api->errorResponse(__('Not found.'), 404);
-                }
+        //         if ($e instanceof NotFoundHttpException) {
+        //             return $api->errorResponse(__('Not found.'), 404);
+        //         }
 
-                if ($e instanceof AuthenticationException) {
-                    return $api->errorResponse(message: __('Unauthenticated.'), code: 401);
-                }
+        //         if ($e instanceof AuthenticationException) {
+        //             return $api->errorResponse(message: __('Unauthenticated.'), code: 401);
+        //         }
 
-                if ($e instanceof AuthorizationException || $e instanceof AccessDeniedHttpException) {
-                    return $api->errorResponse(message: __('You are not authorized to perform this action.'), code: 403);
-                }
+        //         if ($e instanceof AuthorizationException || $e instanceof AccessDeniedHttpException) {
+        //             return $api->errorResponse(message: __('You are not authorized to perform this action.'), code: 403);
+        //         }
 
-                if ($e instanceof ValidationException) {
-                    return $api->errorResponse(message: $e->errors(), code: 422);
-                }
+        //         if ($e instanceof ValidationException) {
+        //             return $api->errorResponse(message: $e->errors(), code: 422);
+        //         }
 
-                Log::error('Unexpected error: ' . $e->getMessage(), [
-                    'exception' => get_class($e),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                    'trace' => $e->getTraceAsString(),
-                    'user_id' => Auth::id(),
-                    'url' => $request->fullUrl(),
-                    'method' => $request->method()
-                ]);
+        //         Log::error('Unexpected error: ' . $e->getMessage(), [
+        //             'exception' => get_class($e),
+        //             'file' => $e->getFile(),
+        //             'line' => $e->getLine(),
+        //             'trace' => $e->getTraceAsString(),
+        //             'user_id' => Auth::id(),
+        //             'url' => $request->fullUrl(),
+        //             'method' => $request->method()
+        //         ]);
 
-                return $api->errorResponse(message: __('Something went wrong.'), code: 500);
-            }
-        });
+        //         return $api->errorResponse(message: __('Something went wrong.'), code: 500);
+        //     }
+        // });
     })->create();

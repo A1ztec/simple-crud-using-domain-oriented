@@ -16,16 +16,17 @@ RUN apt-get update && apt-get install -y \
     && pecl install redis \
     && docker-php-ext-enable redis \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && docker-php-ext-install pcntl
 
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
 WORKDIR /var/www
 
-COPY . .
+#COPY . .
 
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+#RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-EXPOSE 9000
+#EXPOSE 9000
 
-CMD ["php-fpm"]
+#CMD ["php-fpm"]
