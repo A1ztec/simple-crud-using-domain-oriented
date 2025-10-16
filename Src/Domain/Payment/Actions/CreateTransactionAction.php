@@ -21,16 +21,17 @@ class CreateTransactionAction
 
 
         //simulation of duplicate transaction prevention logic
-        
-        // $exists = Transaction::where('amount', $data->amount)
-        //     ->where('user_id', $data->user_id)
-        //     ->where('gateway', $data->gateway)
-        //     ->whereIn('status', [Status::PENDING, Status::PROCESSING])
-        //     ->first();
 
-        // if ($exists) {
-        //     return new CreateTransactionFailedResource(message: 'Duplicate transaction detected for the same user with the same amount and gateway');
-        // }
+        $exists = Transaction::where('amount', $data->amount)
+            ->where('user_id', $data->user_id)
+            ->where('gateway', $data->gateway)
+            ->whereIn('status', [Status::PENDING, Status::PROCESSING])
+            ->lockForUpdate()
+            ->first();
+
+        if ($exists) {
+            return new CreateTransactionFailedResource(message: 'Duplicate transaction detected for the same user with the same amount and gateway');
+        }
 
         $gatewayValue = $data->gateway;
         $data->reference_id = strtoupper(uniqid($gatewayValue . '_'));
