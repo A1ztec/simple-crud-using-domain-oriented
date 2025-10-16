@@ -28,4 +28,6 @@ class CreatePaymentRequest extends FormRequest
             'gateway' => ['required', 'string', Rule::enum(Gateway::class)],
         ];
     }
+
+    
 }

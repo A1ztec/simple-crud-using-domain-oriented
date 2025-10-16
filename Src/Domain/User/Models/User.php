@@ -3,6 +3,7 @@
 namespace Domain\User\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
 use Domain\Payment\Models\Transaction;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Notifications\Notifiable;
@@ -54,6 +55,11 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
             'email_verified_at' => 'datetime',
             'verification_code_expires_at' => 'datetime',
         ];
+    }
+
+    protected static function newFactory()
+    {
+        return UserFactory::new();
     }
 
     public function newEloquentBuilder($query): UserQueryBuilder
