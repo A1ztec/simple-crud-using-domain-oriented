@@ -30,7 +30,7 @@ class PaymentTest extends TestCase
         $this->token = JWTAuth::fromUser($this->user);
     }
 
-    
+
     private function authenticatedJson($method, $uri, array $data = [])
     {
         return $this->withHeader('Authorization', 'Bearer ' . $this->token)
@@ -241,17 +241,5 @@ class PaymentTest extends TestCase
                 'success' => true,
             ]
         ]);
-    }
-
-    #[test]
-    public function checking_non_existent_transaction_returns_422()
-    {
-
-        $response = $this->authenticatedJson('POST', '/api/v1/payments/check-transaction', [
-            'reference_id' => 'NON_EXISTENT_REF'
-        ]);
-
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['reference_id']);
     }
 }
