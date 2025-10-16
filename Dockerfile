@@ -15,18 +15,21 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo_pgsql pdo_mysql zip gd \
     && pecl install redis \
     && docker-php-ext-enable redis \
+    && pecl install xdebug \
+    && docker-php-ext-enable xdebug \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && docker-php-ext-install pcntl
+
 
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
 WORKDIR /var/www
 
-#COPY . .
+COPY . .
 
-#RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+EXPOSE 9000
 
-#EXPOSE 9000
+RUN composer install --no-dev --optimize-autoloader
 
-#CMD ["php-fpm"]
+CMD ["php-fpm"]

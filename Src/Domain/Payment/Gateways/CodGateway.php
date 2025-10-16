@@ -27,10 +27,6 @@ class CodGateway implements PaymentGatewayInterface
 
         $transaction->update(['status' => Status::PROCESSING]);
 
-
-        sleep(5);
-
-
         $dto = new UpdateTransactionDto(
             id: $transaction->id,
             status: Status::SUCCESS->value,
