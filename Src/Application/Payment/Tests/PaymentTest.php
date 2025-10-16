@@ -30,9 +30,7 @@ class PaymentTest extends TestCase
         $this->token = JWTAuth::fromUser($this->user);
     }
 
-    /**
-     * Helper method to make authenticated requests
-     */
+    
     private function authenticatedJson($method, $uri, array $data = [])
     {
         return $this->withHeader('Authorization', 'Bearer ' . $this->token)
