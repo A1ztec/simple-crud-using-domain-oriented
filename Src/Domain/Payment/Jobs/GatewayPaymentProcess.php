@@ -37,7 +37,7 @@ class GatewayPaymentProcess implements ShouldQueue
      */
     public function handle(): void
     {
-        throw new Exception("Simulated job failure for testing retries");
+        // throw new Exception("Simulated job failure for testing retries");
         $data = $this->gateway->processPayment($this->transaction);
         Log::channel('payment')->info('Payment processed', ['data' => $data]);
     }
