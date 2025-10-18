@@ -5,39 +5,39 @@ namespace Domain\Payment\Actions;
 
 use Exception;
 use Domain\Payment\Enums\Status;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Domain\Payment\Models\Transaction;
+use Spatie\RouteAttributes\Attributes\Where;
 use Domain\Payment\DataObjects\CreateTransactionDto;
 use Domain\Payment\Resources\CreateTransactionFailedResource;
 use Domain\Payment\Resources\CreateTransactionSuccessResource;
 use Domain\Payment\Resources\Contracts\PaymentResourceInterface;
-use Spatie\RouteAttributes\Attributes\Where;
 
 class CreateTransactionAction
 
 {
     public function execute(CreateTransactionDto $data): PaymentResourceInterface
     {
-        //toDo : prevent duplicate transaction for same user with same amount and same gateway
-
-
-        //simulation of duplicate transaction prevention logic
-
-        $exists = Transaction::where('amount', $data->amount)
-            ->where('user_id', $data->user_id)
-            ->where('gateway', $data->gateway)
-            ->whereIn('status', [Status::PENDING, Status::PROCESSING])
-            ->lockForUpdate()
-            ->first();
-
-        if ($exists) {
-            return new CreateTransactionFailedResource(message: 'Duplicate transaction detected for the same user with the same amount and gateway');
-        }
-
-        $gatewayValue = $data->gateway;
-        $data->reference_id = strtoupper(uniqid($gatewayValue . '_'));
-
-
+        DB::beginTransaction();
         try {
+            $exists = Transaction::where('amount', $data->amount)
+                ->where('user_id', $data->user_id)
+                ->where('gateway', $data->gateway)
+                ->whereIn('status', [Status::PENDING, Status::PROCESSING])
+                ->lockForUpdate()
+                ->first();
+
+            if ($exists) {
+                DB::rollBack();
+                return new CreateTransactionFailedResource(
+                    message: 'Duplicate transaction detected'
+                );
+            }
+
+            $gatewayValue = $data->gateway;
+            $data->reference_id = strtoupper(uniqid($gatewayValue . '_'));
+
             $transaction = Transaction::create([
                 'user_id' => $data->user_id,
                 'amount' => $data->amount,
@@ -47,8 +47,15 @@ class CreateTransactionAction
                 'metadata' => null,
                 'gateway_response' => null,
             ]);
+
+            DB::commit();
             return new CreateTransactionSuccessResource($transaction);
         } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Transaction creation failed', [
+                'error' => $e->getMessage(),
+                'data' => $data
+            ]);
             return new CreateTransactionFailedResource();
         }
     }
