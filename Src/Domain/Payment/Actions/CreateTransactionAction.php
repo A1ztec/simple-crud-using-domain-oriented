@@ -4,6 +4,7 @@
 namespace Domain\Payment\Actions;
 
 use Exception;
+use Illuminate\Support\Str;
 use Domain\Payment\Enums\Status;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -36,7 +37,7 @@ class CreateTransactionAction
             }
 
             $gatewayValue = $data->gateway;
-            $data->reference_id = strtoupper(uniqid($gatewayValue . '_'));
+            $data->reference_id = strtoupper($gatewayValue . '_' . Str::uuid());
 
             $transaction = Transaction::create([
                 'user_id' => $data->user_id,
