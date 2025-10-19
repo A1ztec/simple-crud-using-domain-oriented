@@ -2,9 +2,11 @@
 
 namespace Application\Payment\Controllers\Api;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Domain\Payment\Models\Transaction;
 use Spatie\RouteAttributes\Attributes\Post;
+use Illuminate\Database\Eloquent\Casts\Json;
 use Spatie\RouteAttributes\Attributes\Prefix;
 use Domain\Payment\DataObjects\HandleCallbackDto;
 use Domain\Payment\Actions\IntializePaymentAction;
@@ -26,7 +28,7 @@ class PaymentController
         uri: '/pay',
         name: 'payments.pay'
     )]
-    public function pay(CreatePaymentRequest $request, IntializePaymentAction $action): TransactionViewModel
+    public function pay(CreatePaymentRequest $request, IntializePaymentAction $action): JsonResponse|array
     {
         $data = $request->validated();
         $data['user_id'] = Auth::id();
@@ -38,7 +40,7 @@ class PaymentController
         name: 'payments.check-transaction'
     )]
 
-    public function checkTransaction(CheckTransactionRequest $request): TransactionShowViewModel
+    public function checkTransaction(CheckTransactionRequest $request): JsonResponse|array
     {
         $data = $request->validated();
         $dto = new ShowTransactionDto(...$data);
@@ -51,7 +53,7 @@ class PaymentController
         uri: '/callback',
         name: 'payments.callback'
     )]
-    public function callback(GatewayCallbackRequest $request, HandlePaymentCallbackAction $action): TransactionViewModel
+    public function callback(GatewayCallbackRequest $request, HandlePaymentCallbackAction $action): JsonResponse|array
     {
         $data = $request->validated();
         $dto = new HandleCallbackDto(

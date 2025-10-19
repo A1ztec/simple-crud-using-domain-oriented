@@ -3,7 +3,8 @@
 namespace Application\Payment\ViewModels;
 
 use League\Fractal\Serializer\JsonApiSerializer;
-use Application\payment\Transformers\TransactionTransformer;
+use Application\Payment\Transformers\TransactionTransformer;
+use Domain\Payment\Models\Transaction;
 use Domain\Payment\Resources\Contracts\PaymentResourceInterface;
 use Support\Traits\apiResponse;
 
@@ -29,13 +30,24 @@ class TransactionViewModel
             );
         }
 
-        return response()->json([
-            'data' => fractal()->item($data)
+
+        if ($data instanceof Transaction) {
+            return fractal()->item($data)
                 ->transformWith(new TransactionTransformer())
                 ->serializeWith(new JsonApiSerializer())
-                ->toArray()['data'] ?? $data,
+                ->addMeta([
+                    'success' => true,
+                    'message' => $resource->getMessage(),
+                    'code' => $resource->getCode()
+                ])
+                ->toArray();
+        }
+
+
+        return response()->json([
+            'data' => $data,
             'meta' => [
-                'success' => true,
+                'success' => $resource->isSuccess(),
                 'message' => $resource->getMessage(),
                 'code' => $resource->getCode()
             ]

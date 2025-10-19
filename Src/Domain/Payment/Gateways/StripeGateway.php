@@ -2,34 +2,29 @@
 
 namespace Domain\Payment\Gateways;
 
+use Exception;
 use Domain\Payment\Enums\Status;
 use Domain\Payment\Enums\Gateway;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Domain\Payment\Models\Transaction;
-use Domain\Payment\Contracts\PaymentGatewayInterface;
-use Domain\Payment\Contracts\OnlinePaymentGatewayInterface;
-use Domain\Payment\Resources\Contracts\PaymentResourceInterface;
-use Domain\Payment\Resources\IntializePaymentSuccessResource;
-use Domain\Payment\Resources\IntializePaymentFailedResource;
 use Domain\Payment\Actions\UpdateTransactionAction;
 use Domain\Payment\DataObjects\UpdateTransactionDto;
+use Domain\Payment\Contracts\PaymentGatewayInterface;
+use Domain\Payment\Contracts\OnlinePaymentGatewayInterface;
+use Domain\Payment\Resources\IntializePaymentFailedResource;
+use Domain\Payment\Resources\IntializePaymentSuccessResource;
+use Domain\Payment\Resources\Contracts\PaymentResourceInterface;
 
 class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInterface
 {
     private string $baseUrl;
-    private array $header;
     private string $secretKey;
 
     public function __construct()
     {
         $this->baseUrl = config('services.stripe.base_url');
         $this->secretKey = config('services.stripe.secret_key');
-        $this->header = [
-            'Authorization' => 'bearer ' . $this->secretKey,
-            'content-type' => 'application/x-www-form-urlencoded',
-            'Accept' => 'application/json',
-        ];
     }
 
     public function validateTransactionData(Transaction $transaction): bool
@@ -44,38 +39,42 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
             return new IntializePaymentFailedResource();
         }
 
-        $data = $this->formatData($transaction);
-        $response = Http::withHeader(...($this->header))
-            ->post($this->baseUrl . '/v1/checkout/sessions', $data);
+        try {
+            $response = $this->makeRequest('POST', '/v1/checkout/sessions', $this->formatData($transaction));
 
-        if ($response->getData(true)['success'] ?? false) {
-            $gatewayData = [
-                'checkout_url' => $response->getData(true)['data']['url'],
-                'session_id' => $response->getData(true)['data']['id'],
-                'status' => $response->getData(true)['data']['status'],
-            ];
+            if ($response->successful()) {
+                $responseData = $response->json();
 
-            $transaction->update([
-                'status' => Status::PENDING,
-                'gateway_response' => [
-                    'gateway' => $this->getGatewayName(),
-                    'session_id' => $gatewayData['session_id'],
-                    'initiated_at' => now()->toDateTimeString(),
-                ]
-            ]);
+                if (isset($responseData['id'])) {
+                    $transaction->update([
+                        'status' => Status::PENDING,
+                        'gateway_response' => [
+                            'gateway' => $this->getGatewayName(),
+                            'session_id' => $responseData['id'],
+                            'initiated_at' => now()->toDateTimeString(),
+                        ]
+                    ]);
 
-            return new IntializePaymentSuccessResource(
-                data: $gatewayData,
-                message: 'Payment processing initiated , Check status using reference ID'
-            );
-        } else {
+                    return new IntializePaymentSuccessResource(
+                        data: [
+                            'checkout_url' => $responseData['url'] ?? null,
+                            'session_id' => $responseData['id'],
+                            'status' => $responseData['status'] ?? 'open',
+                        ],
+                        message: 'Payment processing initiated , Check status using reference ID'
+                    );
+                }
+            }
+            return new IntializePaymentFailedResource();
+        } catch (Exception $e) {
             Log::error('Stripe payment initialization failed', [
-                'response' => $response->getData(true),
+                'response' => $response->json(),
+                'status' => $response->status(),
                 'transaction_id' => $transaction->id,
             ]);
             $transaction->update(['status' => Status::FAILED]);
-
             return new IntializePaymentFailedResource();
+
         }
     }
 
@@ -128,26 +127,28 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
         return Gateway::STRIPE->value;
     }
 
-    public function formatData(Transaction $transaction): array
+    public function formatData($transaction): array
     {
         return [
-            'success_url' => 'api/v1/payment/callback?SESSION_ID={CHECKOUT_SESSION_ID}',
-            'amount' => $transaction->amount,
-            'currency' => 'usd',
-            'reference_id' => $transaction->reference_id,
-            'line_items' => [
-                [
-                    'price_data' => [
-                        'currency' => 'usd',
-                        'product_data' => [
-                            'name' => 'Payment for order ' . $transaction->reference_id,
-                        ],
-                        'unit_amount' => $transaction->amount * 100,
-                    ],
-                    'quantity' => 1,
-                ],
-                'mode' => 'payment',
-            ],
+            'success_url' => url('api/v1/payments/success?session_id={CHECKOUT_SESSION_ID}'),
+            'client_reference_id' => $transaction->reference_id,
+            'mode' => 'payment',
+            'line_items[0][price_data][currency]' => 'usd',
+            'line_items[0][price_data][product_data][name]' => 'Payment for order ' . $transaction->reference_id,
+            'line_items[0][price_data][unit_amount]' => (int)($transaction->amount * 100),
+            'line_items[0][quantity]' => 1,
         ];
+    }
+
+    /**
+     * Make HTTP request to Stripe API
+     */
+    private function makeRequest(string $method, string $endpoint, array $data = []): \Illuminate\Http\Client\Response
+    {
+        $url = $this->baseUrl . $endpoint;
+
+        return Http::withHeader('Authorization', 'Bearer ' . $this->secretKey)
+            ->asForm()
+            ->post($url, $data);
     }
 }

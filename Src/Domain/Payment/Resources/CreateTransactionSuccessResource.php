@@ -9,7 +9,7 @@ use Domain\Payment\Resources\Contracts\PaymentResourceInterface;
 
 class CreateTransactionSuccessResource implements PaymentResourceInterface
 {
-    public function __construct(private array $data) {}
+    public function __construct(private Transaction $data) {}
 
     public function isSuccess(): bool
     {
@@ -26,7 +26,7 @@ class CreateTransactionSuccessResource implements PaymentResourceInterface
         return 'Payment created successfully';
     }
 
-    public function getData(): array
+    public function getData(): Transaction
     {
         return $this->data;
     }
