@@ -2,13 +2,15 @@
 
 namespace Domain\Payment\Gateways;
 
-use Domain\Payment\Actions\UpdateTransactionAction;
-use Domain\Payment\Contracts\PaymentGatewayInterface;
-use Domain\Payment\DataObjects\UpdateTransactionDto;
 use Domain\Payment\Enums\Status;
 use Domain\Payment\Enums\Gateway;
 use Domain\Payment\Models\Transaction;
 use Domain\Payment\Contracts\BaseGateway;
+use Domain\Payment\Actions\UpdateTransactionAction;
+use Domain\Payment\DataObjects\UpdateTransactionDto;
+use Domain\Payment\Contracts\PaymentGatewayInterface;
+use Domain\Payment\Resources\UpdateTransactionFailedResource;
+use Domain\Payment\Resources\Contracts\PaymentResourceInterface;
 
 class CodGateway implements PaymentGatewayInterface
 {
@@ -17,11 +19,11 @@ class CodGateway implements PaymentGatewayInterface
         return $transaction->amount > 0;
     }
 
-    public function processPayment(Transaction $transaction): Transaction
+    public function processPayment(Transaction $transaction): PaymentResourceInterface
     {
         if (!$this->validateTransactionData($transaction)) {
             $transaction->update(['status' => Status::FAILED]);
-            return $transaction;
+            return new UpdateTransactionFailedResource();
         }
 
 
@@ -44,9 +46,7 @@ class CodGateway implements PaymentGatewayInterface
         );
 
 
-        $resource = (new UpdateTransactionAction())->execute($dto);
-
-        return $resource->getData();
+        return (new UpdateTransactionAction())->execute($dto);
     }
 
     public function getGatewayName(): string

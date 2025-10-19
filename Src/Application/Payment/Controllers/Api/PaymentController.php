@@ -24,7 +24,7 @@ class PaymentController
         uri: '/pay',
         name: 'payments.pay'
     )]
-    public function pay(CreatePaymentRequest $request, IntializePaymentAction $action) : TransactionViewModel
+    public function pay(CreatePaymentRequest $request, IntializePaymentAction $action): TransactionViewModel
     {
         $data = $request->validated();
         $data['user_id'] = Auth::id();
@@ -36,10 +36,14 @@ class PaymentController
         name: 'payments.check-transaction'
     )]
 
-    public function checkTransaction(CheckTransactionRequest $request) : TransactionShowViewModel
+    public function checkTransaction(CheckTransactionRequest $request): TransactionShowViewModel
     {
         $data = $request->validated();
         $dto = new ShowTransactionDto(...$data);
         return (new TransactionShowViewModel($dto->reference_id))->toResponse();
     }
+
+    // toDo : implement gateway callback handling
+    
+
 }

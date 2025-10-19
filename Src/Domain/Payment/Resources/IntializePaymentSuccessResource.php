@@ -8,7 +8,7 @@ use Domain\Payment\Resources\Contracts\PaymentResourceInterface;
 class IntializePaymentSuccessResource implements PaymentResourceInterface
 {
     public function __construct(
-        private ?Transaction $transaction = null,
+        private ?array $data = null,
         private ?string $message = null
     ) {}
 
@@ -27,8 +27,8 @@ class IntializePaymentSuccessResource implements PaymentResourceInterface
         return $this->message ?? 'Payment initialized successfully';
     }
 
-    public function getData(): Transaction|null
+    public function getData(): array
     {
-        return $this->transaction;
+        return $this->data;
     }
 }

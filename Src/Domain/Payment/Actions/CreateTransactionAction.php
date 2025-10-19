@@ -23,10 +23,10 @@ class CreateTransactionAction
         DB::beginTransaction();
         try {
             $exists = Transaction::where('amount', $data->amount)
+                ->lockForUpdate()
                 ->where('user_id', $data->user_id)
                 ->where('gateway', $data->gateway)
                 ->whereIn('status', [Status::PENDING, Status::PROCESSING])
-                ->lockForUpdate()
                 ->first();
 
             if ($exists) {
