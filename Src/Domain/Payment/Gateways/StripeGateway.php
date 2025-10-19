@@ -6,6 +6,7 @@ use Exception;
 use Domain\Payment\Enums\Status;
 use Domain\Payment\Enums\Gateway;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Domain\Payment\Models\Transaction;
 use Domain\Payment\Actions\UpdateTransactionAction;
@@ -40,7 +41,7 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
         }
 
         try {
-            $response = $this->makeRequest('POST', '/v1/checkout/sessions', $this->formatData($transaction));
+            $response = $this->makeRequest('/v1/checkout/sessions', $this->formatData($transaction));
 
             if ($response->successful()) {
                 $responseData = $response->json();
@@ -74,7 +75,6 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
             ]);
             $transaction->update(['status' => Status::FAILED]);
             return new IntializePaymentFailedResource();
-
         }
     }
 
@@ -95,7 +95,7 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
             return new IntializePaymentFailedResource();
         }
 
-        $status = $this->mapPaymentStatus($paymentStatus);
+        $status = $this->mapStatus($paymentStatus);
 
         $dto = new UpdateTransactionDto(
             id: $transaction->id,
@@ -112,7 +112,7 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
         return (new UpdateTransactionAction())->execute($dto);
     }
 
-    private function mapPaymentStatus(string $paymentStatus): Status
+    private function mapStatus(string $paymentStatus): Status
     {
         return match ($paymentStatus) {
             'paid' => Status::SUCCESS,
@@ -143,7 +143,7 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
     /**
      * Make HTTP request to Stripe API
      */
-    private function makeRequest(string $method, string $endpoint, array $data = []): \Illuminate\Http\Client\Response
+    private function makeRequest(string $endpoint, array $data = []): Response
     {
         $url = $this->baseUrl . $endpoint;
 

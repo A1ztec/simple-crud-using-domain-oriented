@@ -9,9 +9,6 @@ class TransactionQueryBuilder
 {
     public function getTransactionByReferenceId(string $referenceId): ?Transaction
     {
-        $columns = Schema::getColumnListing('transactions');
-        $diffColumns = ['created_at', 'updated_at'];
-        $selectColumns = array_diff($columns, $diffColumns);
-        return Transaction::select($selectColumns)->where('reference_id', $referenceId)->first();
+        return Transaction::where('reference_id', $referenceId)->first();
     }
 }

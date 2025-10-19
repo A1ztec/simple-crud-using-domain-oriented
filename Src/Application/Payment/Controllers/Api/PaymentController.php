@@ -51,7 +51,8 @@ class PaymentController
 
     #[Post(
         uri: '/callback',
-        name: 'payments.callback'
+        name: 'payments.callback',
+        withoutMiddleware: ['jwt.auth']
     )]
     public function callback(GatewayCallbackRequest $request, HandlePaymentCallbackAction $action): JsonResponse|array
     {
