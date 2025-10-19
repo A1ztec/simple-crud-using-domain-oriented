@@ -10,11 +10,11 @@ use Application\Payment\QueryBuilders\TransactionQueryBuilder;
 class TransactionShowViewModel
 {
     use apiResponse;
-    public function __construct(private string $referenceId) {}
 
-    public function toResponse(): mixed
+
+    public function toResponse(string $referenceId): mixed
     {
-        $transaction = $this->getData();
+        $transaction = $this->getData($referenceId);
 
         if (!$transaction) {
             return $this->errorResponse('Transaction not found', 404);
@@ -31,8 +31,8 @@ class TransactionShowViewModel
             ->toArray();
     }
 
-    private function getData()
+    private function getData(string $referenceId)
     {
-        return (new TransactionQueryBuilder())->getTransactionByReferenceId($this->referenceId);
+        return (new TransactionQueryBuilder())->getTransactionByReferenceId($referenceId);
     }
 }

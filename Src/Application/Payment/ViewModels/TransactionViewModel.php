@@ -10,30 +10,35 @@ use Support\Traits\apiResponse;
 class TransactionViewModel
 {
     use apiResponse;
-    public function __construct() {}
 
     public function toResponse(PaymentResourceInterface $resource): mixed
     {
-        $isSuccess = $resource->isSuccess();
-
-        if (!$isSuccess) {
-            return $this->errorResponse(message: $resource->getMessage(), code: $resource->getCode());
+        if (!$resource->isSuccess()) {
+            return $this->errorResponse(
+                message: $resource->getMessage(),
+                code: $resource->getCode()
+            );
         }
 
-        $transaction = $resource->getData();
+        $data = $resource->getData();
 
-        if (!$resource->getData() && $isSuccess) {
-            return $this->successResponse(message: $resource->getMessage(), code: $resource->getCode());
+        if (!$data) {
+            return $this->successResponse(
+                message: $resource->getMessage(),
+                code: $resource->getCode()
+            );
         }
 
-        return fractal()->item($transaction)
-            ->transformWith(new TransactionTransformer())
-            ->serializeWith(new JsonApiSerializer())
-            ->addMeta([
-                'success' => $resource->isSuccess(),
+        return response()->json([
+            'data' => fractal()->item($data)
+                ->transformWith(new TransactionTransformer())
+                ->serializeWith(new JsonApiSerializer())
+                ->toArray()['data'] ?? $data,
+            'meta' => [
+                'success' => true,
                 'message' => $resource->getMessage(),
                 'code' => $resource->getCode()
-            ])
-            ->toArray();
+            ]
+        ], $resource->getCode());
     }
 }

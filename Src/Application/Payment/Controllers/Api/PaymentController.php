@@ -3,19 +3,21 @@
 namespace Application\Payment\Controllers\Api;
 
 use Illuminate\Support\Facades\Auth;
+use Domain\Payment\Models\Transaction;
 use Spatie\RouteAttributes\Attributes\Post;
 use Spatie\RouteAttributes\Attributes\Prefix;
+use Domain\Payment\DataObjects\HandleCallbackDto;
 use Domain\Payment\Actions\IntializePaymentAction;
 use Domain\Payment\DataObjects\ShowTransactionDto;
 use Domain\Payment\Actions\CreateTransactionAction;
 use Domain\Payment\DataObjects\CreateTransactionDto;
 use Domain\Payment\DataObjects\UpdateTransactionDto;
 use Application\Payment\Requests\CreatePaymentRequest;
+use Domain\Payment\Actions\HandlePaymentCallbackAction;
 use Application\Payment\Requests\GatewayCallbackRequest;
 use Application\Payment\ViewModels\TransactionViewModel;
 use Application\Payment\Requests\CheckTransactionRequest;
 use Application\Payment\ViewModels\TransactionShowViewModel;
-use Domain\Payment\Models\Transaction;
 
 #[Prefix('payments')]
 class PaymentController
@@ -40,10 +42,22 @@ class PaymentController
     {
         $data = $request->validated();
         $dto = new ShowTransactionDto(...$data);
-        return (new TransactionShowViewModel($dto->reference_id))->toResponse();
+        return (new TransactionShowViewModel())->toResponse($dto->reference_id);
     }
 
     // toDo : implement gateway callback handling
-    
 
+    #[Post(
+        uri: '/callback',
+        name: 'payments.callback'
+    )]
+    public function callback(GatewayCallbackRequest $request, HandlePaymentCallbackAction $action): TransactionViewModel
+    {
+        $data = $request->validated();
+        $dto = new HandleCallbackDto(
+            gateway: $data['gateway'],
+            payload: $data['payload']
+        );
+        return (new TransactionViewModel())->toResponse($action->execute($dto));
+    }
 }
