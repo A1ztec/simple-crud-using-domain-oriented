@@ -15,12 +15,14 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo_pgsql pdo_mysql zip gd \
     && pecl install redis \
     && docker-php-ext-enable redis \
-    && pecl install xdebug \
+    && pecl install -o -f  xdebug \
     && docker-php-ext-enable xdebug \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && docker-php-ext-install pcntl
 
+
+COPY ./xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 

@@ -47,7 +47,7 @@ class GatewayPaymentProcess implements ShouldQueue
     {
         Log::channel('payment')->error('Payment Job failed: ' . $e->getMessage());
         $this->transaction->update([
-            'status' => 'failed',
+            'status' => Status::FAILED->value,
             'gateway_response' => [
                 'error' => $e->getMessage()
             ],

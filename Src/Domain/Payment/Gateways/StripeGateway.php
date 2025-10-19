@@ -64,8 +64,7 @@ class StripeGateway  implements PaymentGatewayInterface
             );
         }
 
-        $action = new UpdateTransactionAction();
-        $resource = $action->execute($dto);
+       $resource = (new UpdateTransactionAction())->execute($dto);
 
         return $resource->getData();
     }

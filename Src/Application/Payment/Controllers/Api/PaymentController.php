@@ -15,6 +15,7 @@ use Application\Payment\Requests\GatewayCallbackRequest;
 use Application\Payment\ViewModels\TransactionViewModel;
 use Application\Payment\Requests\CheckTransactionRequest;
 use Application\Payment\ViewModels\TransactionShowViewModel;
+use Domain\Payment\Models\Transaction;
 
 #[Prefix('payments')]
 class PaymentController
@@ -23,7 +24,7 @@ class PaymentController
         uri: '/pay',
         name: 'payments.pay'
     )]
-    public function pay(CreatePaymentRequest $request, IntializePaymentAction $action)
+    public function pay(CreatePaymentRequest $request, IntializePaymentAction $action) : TransactionViewModel
     {
         $data = $request->validated();
         $data['user_id'] = Auth::id();
@@ -35,7 +36,7 @@ class PaymentController
         name: 'payments.check-transaction'
     )]
 
-    public function checkTransaction(CheckTransactionRequest $request)
+    public function checkTransaction(CheckTransactionRequest $request) : TransactionShowViewModel
     {
         $data = $request->validated();
         $dto = new ShowTransactionDto(...$data);

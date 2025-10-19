@@ -31,7 +31,7 @@ class IntializePaymentAction
 
             if ($gateway instanceof CodGateway) {
                 $processedTransaction = $gateway->processPayment($transaction);
-                return new IntializePaymentSuccessResource($processedTransaction, message: 'Cash on Delivery selected. Transaction created successfully.');
+                return new IntializePaymentSuccessResource($processedTransaction, message: 'Cash on Delivery selected , Transaction created successfully');
             }
             GatewayPaymentProcess::dispatch($gateway, $transaction)->onQueue('payment')->delay(now()->addSeconds(5));
             return new IntializePaymentSuccessResource($transaction, message: 'Payment processing initiated , Check status using reference ID');

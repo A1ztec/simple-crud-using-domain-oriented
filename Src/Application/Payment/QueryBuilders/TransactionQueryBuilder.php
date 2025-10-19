@@ -8,6 +8,6 @@ class TransactionQueryBuilder
 {
     public function getTransactionByReferenceId(string $referenceId): ?Transaction
     {
-        return Transaction::with('user')->where('reference_id', $referenceId)->first();
+        return Transaction::where('reference_id', $referenceId)->first();
     }
 }

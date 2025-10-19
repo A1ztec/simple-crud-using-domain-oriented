@@ -34,7 +34,7 @@ class CodGateway implements PaymentGatewayInterface
             metadata: [
                 'estimated_delivery' => now()->addDays(5)->toDateString(),
                 'payment_method' => 'Cash on Delivery',
-                'message' => 'Cash on Delivery order placed successfully. Please prepare the payment upon delivery.',
+                'message' => 'Cash on Delivery order placed successfully , Please prepare the payment upon delivery',
             ],
             gateway_response: [
                 'gateway' => $this->getGatewayName(),
@@ -44,8 +44,7 @@ class CodGateway implements PaymentGatewayInterface
         );
 
 
-        $action = new UpdateTransactionAction();
-        $resource = $action->execute($dto);
+        $resource = (new UpdateTransactionAction())->execute($dto);
 
         return $resource->getData();
     }
