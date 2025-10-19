@@ -37,14 +37,14 @@ class CreateTransactionAction
             }
 
             $gatewayValue = $data->gateway;
-            $data->reference_id = strtoupper($gatewayValue . '_' . Str::uuid());
+            $ReferenceId = strtoupper($gatewayValue . '_' . Str::uuid());
 
             $transaction = Transaction::create([
                 'user_id' => $data->user_id,
                 'amount' => $data->amount,
                 'gateway' => $gatewayValue,
                 'status' => $data->status ?? Status::PENDING->value,
-                'reference_id' => $data->reference_id,
+                'reference_id' => $ReferenceId,
                 'metadata' => null,
                 'gateway_response' => null,
             ]);
