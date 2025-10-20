@@ -143,7 +143,7 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
     /**
      * Make HTTP request to Stripe API
      */
-    private function makeRequest(string $endpoint, array $data = []): Response
+    public function makeRequest(string $endpoint, array $data = []): Response
     {
         $url = $this->baseUrl . $endpoint;
 
