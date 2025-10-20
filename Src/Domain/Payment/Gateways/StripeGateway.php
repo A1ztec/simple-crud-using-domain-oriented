@@ -130,7 +130,7 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
     public function formatData($transaction): array
     {
         return [
-            'success_url' => url('api/v1/payments/success?session_id={CHECKOUT_SESSION_ID}'),
+            'success_url' => url('api/v1/payments/success?session_id={CHECKOUT_SESSION_ID}'), // to redirect user for specific url not the webhook
             'client_reference_id' => $transaction->reference_id,
             'mode' => 'payment',
             'line_items[0][price_data][currency]' => 'usd',
@@ -140,9 +140,7 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
         ];
     }
 
-    /**
-     * Make HTTP request to Stripe API
-     */
+   
     public function makeRequest(string $endpoint, array $data = []): Response
     {
         $url = $this->baseUrl . $endpoint;
