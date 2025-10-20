@@ -57,10 +57,7 @@ class PaymentController
     public function callback(GatewayCallbackRequest $request, HandlePaymentCallbackAction $action): JsonResponse|array
     {
         $data = $request->validated();
-        $dto = new HandleCallbackDto(
-            gateway: $data['gateway'],
-            payload: $data['payload']
-        );
+        $dto = new HandleCallbackDto(...$data);
         return (new TransactionViewModel())->toResponse($action->execute($dto));
     }
 }
