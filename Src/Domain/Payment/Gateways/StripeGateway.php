@@ -48,7 +48,7 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
 
                 if (isset($responseData['id'])) {
                     $transaction->update([
-                        'status' => Status::PENDING,
+                        'status' => Status::PROCESSING,
                         'gateway_response' => [
                             'gateway' => $this->getGatewayName(),
                             'session_id' => $responseData['id'],
@@ -140,7 +140,7 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
         ];
     }
 
-   
+
     public function makeRequest(string $endpoint, array $data = []): Response
     {
         $url = $this->baseUrl . $endpoint;

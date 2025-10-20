@@ -4,8 +4,10 @@ use Support\Traits\apiResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Application;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Validation\ValidationException;
+use Domain\Payment\Jobs\RetryFailedTransactions;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -22,6 +24,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         //
+    })->withSchedule(function (Schedule $schedule): void {
+        $schedule->call(function () {
+            RetryFailedTransactions::dispatch();
+        })->everyFiveMinutes();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // $api = new class {
