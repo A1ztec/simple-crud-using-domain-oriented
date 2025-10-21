@@ -4,8 +4,8 @@ namespace Application\Payment\Tests;
 
 use Tests\TestCase;
 use Domain\User\Models\User;
-use Domain\Payment\Enums\Status;
-use Domain\Payment\Enums\Gateway;
+use Domain\Payment\Enums\StatusEnum;
+use Domain\Payment\Enums\GatewayEnum;
 use Domain\Payment\Models\Transaction;
 use Domain\Payment\Jobs\GatewayPaymentProcess;
 use Illuminate\Support\Facades\Queue;
@@ -79,8 +79,8 @@ class PaymentTest extends TestCase
         $this->assertDatabaseHas('transactions', [
             'user_id' => $this->user->id,
             'amount' => 1000,
-            'gateway' => Gateway::COD->value,
-            'status' => Status::SUCCESS->value,
+            'gateway' => GatewayEnum::COD,
+            'status' => StatusEnum::SUCCESS,
         ]);
 
         $transaction = Transaction::where('user_id', $this->user->id)->first();
@@ -133,8 +133,8 @@ class PaymentTest extends TestCase
         $this->assertDatabaseHas('transactions', [
             'user_id' => $this->user->id,
             'amount' => 1000,
-            'gateway' => Gateway::STRIPE->value,
-            'status' => Status::PENDING->value,
+            'gateway' => GatewayEnum::STRIPE,
+            'status' => StatusEnum::PENDING,
         ]);
 
         Queue::assertPushed(GatewayPaymentProcess::class, function ($job) {
@@ -198,8 +198,8 @@ class PaymentTest extends TestCase
         $transaction = Transaction::create([
             'user_id' => $this->user->id,
             'amount' => 1000,
-            'gateway' => Gateway::STRIPE->value,
-            'status' => Status::SUCCESS->value,
+            'gateway' => GatewayEnum::STRIPE,
+            'status' => StatusEnum::SUCCESS,
             'reference_id' => 'STRIPE_TEST123',
             'metadata' => ['test' => 'data'],
             'gateway_response' => ['status' => 'succeeded'],

@@ -6,6 +6,7 @@ use Exception;
 use Domain\Payment\Enums\Status;
 use Faker\Provider\ar_EG\Payment;
 use Illuminate\Support\Facades\Log;
+use Domain\Payment\Enums\StatusEnum;
 use Domain\Payment\Models\Transaction;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -47,7 +48,7 @@ class GatewayPaymentProcess implements ShouldQueue
     {
         Log::channel('payment')->error('Payment Job failed: ' . $e->getMessage());
         $this->transaction->update([
-            'status' => Status::FAILED->value,
+            'status' => StatusEnum::FAILED,
             'gateway_response' => [
                 'error' => $e->getMessage()
             ],

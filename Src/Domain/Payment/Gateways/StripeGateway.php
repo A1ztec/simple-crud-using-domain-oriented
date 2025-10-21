@@ -3,14 +3,13 @@
 namespace Domain\Payment\Gateways;
 
 use Exception;
-use Domain\Payment\Enums\Status;
-use Domain\Payment\Enums\Gateway;
 use Illuminate\Support\Facades\Log;
+use Domain\Payment\Enums\StatusEnum;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Domain\Payment\Enums\GatewayEnum;
 use Domain\Payment\Models\Transaction;
-use Domain\Payment\Actions\UpdateTransactionAction;
-use Domain\Payment\DataObjects\UpdateTransactionDto;
+use Domain\Payment\Models\StripePaymentTransaction;
 use Domain\Payment\Contracts\PaymentGatewayInterface;
 use Domain\Payment\Contracts\OnlinePaymentGatewayInterface;
 use Domain\Payment\Resources\IntializePaymentFailedResource;
@@ -28,103 +27,85 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
         $this->secretKey = config('services.stripe.secret_key');
     }
 
-    public function validateTransactionData(Transaction $transaction): bool
-    {
-        return $transaction->amount > 0 && $transaction->user_id !== null;
-    }
-
     public function processPayment(Transaction $transaction): PaymentResourceInterface
     {
-        if (!$this->validateTransactionData($transaction)) {
-            $transaction->update(['status' => Status::FAILED]);
-            return new IntializePaymentFailedResource();
-        }
 
-        try {
-            $response = $this->makeRequest('/v1/checkout/sessions', $this->formatData($transaction));
+        $stripeTransaction = StripePaymentTransaction::create([
+            'payment_id' => $transaction->id,
+            'amount' => $transaction->amount,
+            'status' => $transaction->status,
+        ]);
 
-            if ($response->successful()) {
-                $responseData = $response->json();
+        $response = $this->makeRequest('/v1/checkout/sessions', $this->formatData($transaction));
 
-                if (isset($responseData['id'])) {
-                    $transaction->update([
-                        'status' => Status::PROCESSING,
-                        'gateway_response' => [
-                            'gateway' => $this->getGatewayName(),
-                            'session_id' => $responseData['id'],
-                            'initiated_at' => now()->toDateTimeString(),
-                        ]
-                    ]);
+        if ($response->successful()) {
+            $responseData = $response->json();
 
-                    return new IntializePaymentSuccessResource(
-                        data: [
-                            'checkout_url' => $responseData['url'] ?? null,
-                            'session_id' => $responseData['id'],
-                            'status' => $responseData['status'] ?? 'open',
-                        ],
-                        message: 'Payment processing initiated , Check status using reference ID'
-                    );
-                }
+            if (isset($responseData['id'])) {
+
+                $stripeTransaction->update([
+                    'transaction_id' => $responseData['id'],
+                    'checkout_url' => $responseData['url'],
+                ]);
+
+                $transaction->update([
+                    'payment_method_gateway_id' => $stripeTransaction->id,
+                    'payment_method_gateway_type' => StripePaymentTransaction::class,
+                ]);
+
+                return new IntializePaymentSuccessResource(
+                    data: [
+                        'checkout_url' => $responseData['url'],
+                        'session_id' => $responseData['id'],
+                        'reference_id' => $transaction->reference_id,
+                    ],
+                    message: 'Payment processing initiated , Check status using reference ID'
+                );
             }
-            return new IntializePaymentFailedResource();
-        } catch (Exception $e) {
-            Log::error('Stripe payment initialization failed', [
-                'response' => $response->json(),
-                'status' => $response->status(),
-                'transaction_id' => $transaction->id,
-            ]);
-            $transaction->update(['status' => Status::FAILED]);
-            return new IntializePaymentFailedResource();
         }
+        return new IntializePaymentFailedResource('Payment initialization failed');
     }
+
+
 
     public function callBack(array $payload): PaymentResourceInterface
     {
-        $sessionId = $payload['session_id'] ?? null;
-        $paymentStatus = $payload['payment_status'] ?? null;
+        $sessionId = $payload['session_id'];
+        $paymentStatus = $payload['payment_status'];
 
-        if (!$sessionId) {
-            Log::error('Stripe callback: Missing session_id');
-            return new IntializePaymentFailedResource();
-        }
+        $stripeTransaction = StripePaymentTransaction::where('transaction_id', $sessionId)->with('transaction')->first();
 
-        $transaction = Transaction::where('gateway_response->session_id', $sessionId)->first();
 
-        if (!$transaction) {
+        if (!$stripeTransaction) {
             Log::error('Stripe callback: Transaction not found', ['session_id' => $sessionId]);
-            return new IntializePaymentFailedResource();
+            return new IntializePaymentFailedResource(message: 'Transaction not Found for this session_id');
         }
 
-        $status = $this->mapStatus($paymentStatus);
+        $status = StatusEnum::stripeStatus($paymentStatus);
 
-        $dto = new UpdateTransactionDto(
-            id: $transaction->id,
-            status: $status->value,
-            gateway_response: array_merge(
-                $transaction->gateway_response ?? [],
-                [
-                    'callback_received_at' => now()->toDateTimeString(),
-                    'payment_status' => $paymentStatus,
-                ]
-            )
+        $stripeTransaction->update([
+            'gateway_response' => $payload,
+            'status' => $status,
+        ]);
+
+        $stripeTransaction->transaction->update([
+            'status' => $status,
+        ]);
+
+        return new IntializePaymentSuccessResource(
+            data: [
+                'reference_id' => $stripeTransaction->transaction->reference_id,
+                'status' => $status,
+            ],
+            message: 'Stripe Payment Proccessed Successfully'
         );
-
-        return (new UpdateTransactionAction())->execute($dto);
     }
 
-    private function mapStatus(string $paymentStatus): Status
-    {
-        return match ($paymentStatus) {
-            'paid' => Status::SUCCESS,
-            'unpaid' => Status::PENDING,
-            'failed' => Status::FAILED,
-            default => Status::PROCESSING,
-        };
-    }
+
 
     public function getGatewayName(): string
     {
-        return Gateway::STRIPE->value;
+        return GatewayEnum::STRIPE;
     }
 
     public function formatData($transaction): array
@@ -144,7 +125,6 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
     public function makeRequest(string $endpoint, array $data = []): Response
     {
         $url = $this->baseUrl . $endpoint;
-
         return Http::withHeader('Authorization', 'Bearer ' . $this->secretKey)
             ->asForm()
             ->post($url, $data);

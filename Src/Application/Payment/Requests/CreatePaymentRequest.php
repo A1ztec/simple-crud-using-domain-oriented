@@ -3,7 +3,7 @@
 namespace Application\Payment\Requests;
 
 use Illuminate\Validation\Rule;
-use Domain\Payment\Enums\Gateway;
+use Domain\Payment\Enums\GatewayEnum;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreatePaymentRequest extends FormRequest
@@ -25,9 +25,7 @@ class CreatePaymentRequest extends FormRequest
     {
         return [
             'amount' => ['required', 'numeric', 'min:1'],
-            'gateway' => ['required', 'string', Rule::enum(Gateway::class)],
+            'gateway' => ['required', 'string', Rule::in(GatewayEnum::COD, GatewayEnum::STRIPE)],
         ];
     }
-
-    
 }

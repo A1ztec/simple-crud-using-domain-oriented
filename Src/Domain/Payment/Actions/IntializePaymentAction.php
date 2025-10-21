@@ -11,9 +11,9 @@ use Domain\Payment\Resources\IntializePaymentFailedResource;
 
 class IntializePaymentAction
 {
-    public function execute(CreateTransactionDto $dto): PaymentResourceInterface
+    public function __invoke(CreateTransactionDto $dto): PaymentResourceInterface
     {
-        $resource = (new CreateTransactionAction())->execute($dto);
+        $resource = (new CreateTransactionAction())($dto);
 
         Log::channel('payment')->info('Transaction creation resource', ['resource' => $resource]);
 

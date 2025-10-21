@@ -3,7 +3,7 @@
 namespace Application\Payment\Requests;
 
 use Illuminate\Validation\Rule;
-use Domain\Payment\Enums\Gateway;
+use Domain\Payment\Enums\GatewayEnum;
 use Illuminate\Foundation\Http\FormRequest;
 
 class GatewayCallbackRequest extends FormRequest
@@ -16,7 +16,7 @@ class GatewayCallbackRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'gateway' => ['required', 'string', Rule::enum(Gateway::class)],
+            'gateway' => ['required', 'string', Rule::in(GatewayEnum::COD, GatewayEnum::STRIPE)],
             'payload' => ['required', 'array'],
             'payload.session_id' => ['required', 'string'],
             'payload.payment_status' => ['required', 'string'],

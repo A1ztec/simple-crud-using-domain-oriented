@@ -16,7 +16,6 @@ class UserViewModel
 
     public function toResponse()
     {
-
         //  dd(function_exists('fractal'));
         // dd($this->resource->getData());
 

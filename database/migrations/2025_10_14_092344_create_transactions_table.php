@@ -19,8 +19,7 @@ return new class extends Migration
             $table->string('status');
             $table->string('reference_id')->unique()->nullable();
             $table->string('gateway');
-            $table->json('metadata')->nullable();
-            $table->json('gateway_response')->nullable();
+            $table->nullableMorphs('payment_method_gateway');
             $table->timestamps();
 
             $table->index('user_id');

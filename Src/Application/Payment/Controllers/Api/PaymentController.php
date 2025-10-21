@@ -32,7 +32,7 @@ class PaymentController
     {
         $data = $request->validated();
         $data['user_id'] = Auth::id();
-        return (new TransactionViewModel())->toResponse($action->execute(new CreateTransactionDto(...$data)));
+        return (new TransactionViewModel())->toResponse($action(new CreateTransactionDto(...$data)));
     }
 
     #[Post(
@@ -58,6 +58,6 @@ class PaymentController
     {
         $data = $request->validated();
         $dto = new HandleCallbackDto(...$data);
-        return (new TransactionViewModel())->toResponse($action->execute($dto));
+        return (new TransactionViewModel())->toResponse($action($dto));
     }
 }

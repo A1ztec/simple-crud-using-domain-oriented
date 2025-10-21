@@ -24,10 +24,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         //
-    })->withSchedule(function (Schedule $schedule): void {
-        $schedule->call(function () {
-            RetryFailedTransactions::dispatch();
-        })->everyFiveMinutes();
+        // })->withSchedule(function (Schedule $schedule): void {
+        //     $schedule->call(function () {
+        //         RetryFailedTransactions::dispatch();
+        //     })->everyFiveMinutes();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // $api = new class {

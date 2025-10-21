@@ -11,7 +11,7 @@ use Domain\Payment\Resources\IntializePaymentFailedResource;
 
 class HandlePaymentCallbackAction
 {
-    public function execute(HandleCallbackDto $dto): PaymentResourceInterface
+    public function __invoke(HandleCallbackDto $dto): PaymentResourceInterface
     {
         try {
             $gateway = (new PaymentGatewayFactory())->make($dto->gateway);

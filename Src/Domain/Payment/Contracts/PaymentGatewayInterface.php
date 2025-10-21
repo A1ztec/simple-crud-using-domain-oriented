@@ -11,5 +11,4 @@ interface PaymentGatewayInterface
 
     public function getGatewayName(): string;
 
-    public function validateTransactionData(Transaction $transaction): bool;
 }

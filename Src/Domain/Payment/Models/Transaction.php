@@ -3,9 +3,10 @@
 namespace Domain\Payment\Models;
 
 use Domain\User\Models\User;
-use Domain\Payment\Enums\Status;
-use Domain\Payment\Enums\Gateway;
+use Domain\Payment\Enums\StatusEnum;
+use Domain\Payment\Enums\GatewayEnum;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Transaction extends Model
 {
@@ -15,18 +16,22 @@ class Transaction extends Model
         'gateway',
         'user_id',
         'reference_id',
-        'gateway_response',
-        'metadata'
+        'payment_method_gateway_id',
+        'payment_method_gateway_type',
     ];
 
     protected function casts()
     {
         return [
-            'status' => Status::class,
-            'gateway' => Gateway::class,
+
             'gateway_response' => 'array',
             'metadata' => 'array',
         ];
+    }
+
+    public function paymentMethodGateway(): MorphTo
+    {
+        return $this->morphTo();
     }
 
     public function user()

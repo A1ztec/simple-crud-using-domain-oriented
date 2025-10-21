@@ -8,7 +8,7 @@ use League\Fractal\TransformerAbstract;
 
 class TransactionTransformer extends TransformerAbstract
 {
-    public function transform(?Transaction $transaction) : array
+    public function transform(?Transaction $transaction): array
     {
         if (!$transaction) {
             return [];
@@ -21,8 +21,6 @@ class TransactionTransformer extends TransformerAbstract
             'status' => $transaction->status->value ?? $transaction->status,
             'gateway' => $transaction->gateway->value ?? $transaction->gateway,
             'reference_id' => $transaction->reference_id,
-            'metadata' => $transaction->metadata,
-            'gateway_response' => $transaction->gateway_response,
         ];
     }
 }

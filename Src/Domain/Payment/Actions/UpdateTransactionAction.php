@@ -9,24 +9,26 @@ use Domain\Payment\DataObjects\UpdateTransactionDto;
 use Domain\Payment\Resources\UpdateTransactionFailedResource;
 use Domain\Payment\Resources\UpdateTransactionSuccessResource;
 use Domain\Payment\Resources\Contracts\PaymentResourceInterface;
+use Illuminate\Support\Facades\Log;
 
 class UpdateTransactionAction
 
 {
-    public function execute(UpdateTransactionDto $data): PaymentResourceInterface
+    public function __invoke(UpdateTransactionDto $data, Transaction $transaction): PaymentResourceInterface
     {
-
         try {
-            $transaction = Transaction::findOrFail($data->id);
+            // ToDo: no need to this check i will pass the transaction directly
             $transaction->update([
-                'amount' => $data->amount ?? $transaction->amount,
-                'status' => $data->status ?? $transaction->status,
-                'reference_id' => $data->reference_id ?? $transaction->reference_id,
-                'metadata' => $data->metadata ?? $transaction->metadata,
-                'gateway_response' => $data->gateway_response ?? $transaction->gateway_response,
+                'status' => $data->status,
+                'payment_method_gateway_id' => $data->payment_method_gateway_id,
+                'payment_method_gateway_type' => $data->payment_method_gateway_type
             ]);
             return new UpdateTransactionSuccessResource($transaction);
         } catch (Exception $e) {
+            Log::channel('payment')->error('Transaction update failed', [
+                'error' => $e->getMessage(),
+                'transaction_id' => $transaction->id
+            ]);
             return new UpdateTransactionFailedResource();
         }
     }

@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use Domain\Payment\Enums\Status;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Domain\Payment\Enums\StatusEnum;
 use Domain\Payment\Models\Transaction;
 use Spatie\RouteAttributes\Attributes\Where;
 use Domain\Payment\DataObjects\CreateTransactionDto;
@@ -18,15 +19,21 @@ use Domain\Payment\Resources\Contracts\PaymentResourceInterface;
 class CreateTransactionAction
 
 {
-    public function execute(CreateTransactionDto $data): PaymentResourceInterface
+    public function __invoke(CreateTransactionDto $data): PaymentResourceInterface
     {
+        if ($data->amount <= 0 || $data->user_id === null) {
+            return new CreateTransactionFailedResource(
+                message: 'Invalid transaction data'
+            );
+        }
+
         DB::beginTransaction();
         try {
             $exists = Transaction::where('amount', $data->amount)
                 ->lockForUpdate()
                 ->where('user_id', $data->user_id)
                 ->where('gateway', $data->gateway)
-                ->whereIn('status', [Status::PENDING, Status::PROCESSING])
+                ->whereIn('status', [StatusEnum::PENDING, StatusEnum::PROCESSING])
                 ->first();
 
             if ($exists) {
@@ -43,10 +50,8 @@ class CreateTransactionAction
                 'user_id' => $data->user_id,
                 'amount' => $data->amount,
                 'gateway' => $gatewayValue,
-                'status' => $data->status ?? Status::PENDING->value,
+                'status' => $data->status ?? StatusEnum::PENDING,
                 'reference_id' => $ReferenceId,
-                'metadata' => null,
-                'gateway_response' => null,
             ]);
 
             DB::commit();
