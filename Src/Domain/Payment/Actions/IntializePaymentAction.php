@@ -3,6 +3,7 @@
 namespace Domain\Payment\Actions;
 
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Domain\Payment\Factories\PaymentGatewayFactory;
 use Domain\Payment\DataObjects\CreateTransactionDto;
@@ -13,21 +14,22 @@ class IntializePaymentAction
 {
     public function __invoke(CreateTransactionDto $dto): PaymentResourceInterface
     {
-        $resource = (new CreateTransactionAction())($dto);
-
-        Log::channel('payment')->info('Transaction creation resource', ['resource' => $resource]);
-
-        if (!$resource->isSuccess()) {
-            return $resource;
-        }
-
-        $transaction = $resource->getData();
-
         try {
-            $gateway = (new PaymentGatewayFactory())->make($dto->gateway);
-            return $gateway->processPayment($transaction);
+
+            return DB::transaction(function () use ($dto) {
+
+                $resource = (new CreateTransactionAction())($dto);
+
+                if (!$resource->isSuccess()) return $resource;
+
+                $transaction = $resource->getData();
+
+                $gateway = (new PaymentGatewayFactory())->make($dto->gateway);
+                
+                return $gateway->processPayment($transaction);
+            });
         } catch (Exception $e) {
-            Log::channel('payment')->error('Transaction initialization failed', ['error' => $e->getMessage()]);
+            Log::channel('payment')->error('Payment initialization failed', ['error' => $e->getMessage()]);
             return new IntializePaymentFailedResource();
         }
     }

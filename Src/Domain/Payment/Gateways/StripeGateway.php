@@ -3,6 +3,7 @@
 namespace Domain\Payment\Gateways;
 
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Domain\Payment\Enums\StatusEnum;
 use Illuminate\Http\Client\Response;
@@ -41,15 +42,10 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
         if ($response->successful()) {
             $responseData = $response->json();
 
-            $stripeTransaction->update([
-                'transaction_id' => $responseData['id'],
-                'checkout_url' => $responseData['url'],
-            ]);
-
-            $transaction->update([
-                'payment_method_gateway_id' => $stripeTransaction->id,
-                'payment_method_gateway_type' => StripePaymentTransaction::class,
-            ]);
+            DB::transaction(function () use ($stripeTransaction, $transaction, $responseData) {
+                $stripeTransaction->update(['transaction_id' => $responseData['id'], 'checkout_url' => $responseData['url']]);
+                $transaction->paymentMethodGateway()->associate($stripeTransaction)->save();
+            });
 
             return new IntializePaymentSuccessResource(
                 data: [
@@ -60,8 +56,10 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
                 message: 'Payment processing initiated , Check status using reference ID'
             );
         }
-        return new IntializePaymentFailedResource('Payment initialization failed');
+        Log::channel('payment')->error('Stripe payment initiation failed', ['response_status' => $response->status(), 'response_body' => $response->body()]);
+        return new IntializePaymentFailedResource();
     }
+
 
 
 
@@ -73,21 +71,15 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
         $stripeTransaction = StripePaymentTransaction::where('transaction_id', $sessionId)->with('transaction')->first();
 
 
-        if (!$stripeTransaction) {
-            Log::error('Stripe callback: Transaction not found', ['session_id' => $sessionId]);
-            return new IntializePaymentFailedResource(message: 'Transaction not Found for this session_id');
-        }
+        if (!$stripeTransaction) return new IntializePaymentFailedResource(message: 'Transaction not Found for this session_id');
 
         $status = StatusEnum::stripeStatus($paymentStatus);
 
-        $stripeTransaction->update([
-            'gateway_response' => $payload,
-            'status' => $status,
-        ]);
+        DB::transaction(function () use ($stripeTransaction, $payload, $status) {
 
-        $stripeTransaction->transaction->update([
-            'status' => $status,
-        ]);
+            $stripeTransaction->update(['gateway_response' => $payload, 'status' => $status]);
+            $stripeTransaction->transaction->update(['status' => $status]);
+        });
 
         return new IntializePaymentSuccessResource(
             data: [

@@ -10,6 +10,7 @@ use Domain\Payment\Actions\UpdateTransactionAction;
 use Domain\Payment\DataObjects\UpdateTransactionDto;
 use Domain\Payment\Contracts\PaymentGatewayInterface;
 use Domain\Payment\Resources\Contracts\PaymentResourceInterface;
+use Domain\Payment\Resources\IntializePaymentSuccessResource;
 
 class CodGateway implements PaymentGatewayInterface
 {
@@ -23,13 +24,19 @@ class CodGateway implements PaymentGatewayInterface
         ]);
 
 
-        $dto = new UpdateTransactionDto(
-            status: StatusEnum::SUCCESS,
-            payment_method_gateway_id: $codTransaction->id,
-            payment_method_gateway_type: CodPaymentTransaction::class
-        );
+        $transaction->update([
+            'payment_method_gateway_id' => $codTransaction->id,
+            'payment_method_gateway_type' => $this->getGatewayName(),
+            'status' => StatusEnum::SUCCESS,
+        ]);
 
-        return (new UpdateTransactionAction())($dto, $transaction);
+        return new IntializePaymentSuccessResource(
+            data: [
+                'reference_id' => $transaction->reference_id,
+                'amount' => $transaction->amount,
+            ],
+            message: 'Cash on Delivery payment processed successfully'
+        );
     }
 
     public function getGatewayName(): string
