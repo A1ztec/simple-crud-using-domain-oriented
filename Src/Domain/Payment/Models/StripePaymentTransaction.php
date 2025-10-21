@@ -32,9 +32,4 @@ class StripePaymentTransaction extends Model
     {
         return $this->morphOne(Transaction::class, 'payment_method_gateway');
     }
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
 }

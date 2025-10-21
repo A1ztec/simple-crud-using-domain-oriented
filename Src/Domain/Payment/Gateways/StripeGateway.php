@@ -41,27 +41,24 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
         if ($response->successful()) {
             $responseData = $response->json();
 
-            if (isset($responseData['id'])) {
+            $stripeTransaction->update([
+                'transaction_id' => $responseData['id'],
+                'checkout_url' => $responseData['url'],
+            ]);
 
-                $stripeTransaction->update([
-                    'transaction_id' => $responseData['id'],
+            $transaction->update([
+                'payment_method_gateway_id' => $stripeTransaction->id,
+                'payment_method_gateway_type' => StripePaymentTransaction::class,
+            ]);
+
+            return new IntializePaymentSuccessResource(
+                data: [
                     'checkout_url' => $responseData['url'],
-                ]);
-
-                $transaction->update([
-                    'payment_method_gateway_id' => $stripeTransaction->id,
-                    'payment_method_gateway_type' => StripePaymentTransaction::class,
-                ]);
-
-                return new IntializePaymentSuccessResource(
-                    data: [
-                        'checkout_url' => $responseData['url'],
-                        'session_id' => $responseData['id'],
-                        'reference_id' => $transaction->reference_id,
-                    ],
-                    message: 'Payment processing initiated , Check status using reference ID'
-                );
-            }
+                    'session_id' => $responseData['id'],
+                    'reference_id' => $transaction->reference_id,
+                ],
+                message: 'Payment processing initiated , Check status using reference ID'
+            );
         }
         return new IntializePaymentFailedResource('Payment initialization failed');
     }

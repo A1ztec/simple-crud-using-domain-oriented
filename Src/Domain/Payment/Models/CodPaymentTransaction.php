@@ -18,18 +18,11 @@ class CodPaymentTransaction extends Model
         'amount',
     ];
 
-    protected function casts()
-    {
-        return [];
-    }
+
 
     public function transaction(): MorphOne
     {
         return $this->morphOne(Transaction::class, 'payment_method_gateway');
     }
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
 }
