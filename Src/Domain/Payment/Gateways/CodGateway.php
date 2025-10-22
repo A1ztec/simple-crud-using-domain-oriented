@@ -19,20 +19,19 @@ class CodGateway implements PaymentGatewayInterface
     public function processPayment(Transaction $transaction): PaymentResourceInterface
     {
         try {
-            DB::transaction(function () use ($transaction) {
 
-                $codTransaction =  CodPaymentTransaction::create([
-                    'payment_id' => $transaction->id,
-                    'amount' => $transaction->amount,
-                    'status' => StatusEnum::SUCCESS,
-                ]);
 
-                $transaction->update([
-                    'payment_method_gateway_id' => $codTransaction->id,
-                    'payment_method_gateway_type' => $this->getGatewayName(),
-                    'status' => StatusEnum::SUCCESS,
-                ]);
-            });
+            $codTransaction =  CodPaymentTransaction::create([
+                'payment_id' => $transaction->id,
+                'amount' => $transaction->amount,
+                'status' => StatusEnum::SUCCESS,
+            ]);
+
+            $transaction->update([
+                'payment_method_gateway_id' => $codTransaction->id,
+                'payment_method_gateway_type' => $this->getGatewayName(),
+                'status' => StatusEnum::SUCCESS,
+            ]);
 
             return new IntializePaymentSuccessResource(
                 data: [

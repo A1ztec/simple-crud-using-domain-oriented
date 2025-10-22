@@ -14,22 +14,9 @@ class TransactionViewModel
 
     public function toResponse(PaymentResourceInterface $resource): mixed
     {
-        if (!$resource->isSuccess()) {
-            return $this->errorResponse(
-                message: $resource->getMessage(),
-                code: $resource->getCode()
-            );
-        }
+
 
         $data = $resource->getData();
-
-        if (!$data) {
-            return $this->successResponse(
-                message: $resource->getMessage(),
-                code: $resource->getCode()
-            );
-        }
-
 
         if ($data instanceof Transaction) {
             return fractal()->item($data)

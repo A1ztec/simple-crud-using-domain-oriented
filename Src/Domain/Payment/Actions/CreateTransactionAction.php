@@ -27,7 +27,7 @@ class CreateTransactionAction
             );
         }
 
-        DB::beginTransaction();
+
         try {
             $exists = Transaction::where('amount', $data->amount)
                 ->lockForUpdate()
@@ -54,10 +54,9 @@ class CreateTransactionAction
                 'reference_id' => $ReferenceId,
             ]);
 
-            DB::commit();
+
             return new CreateTransactionSuccessResource($transaction);
         } catch (Exception $e) {
-            DB::rollBack();
             Log::error('Transaction creation failed', [
                 'error' => $e->getMessage(),
                 'data' => $data

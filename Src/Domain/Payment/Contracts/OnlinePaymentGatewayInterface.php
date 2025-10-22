@@ -12,8 +12,5 @@ interface OnlinePaymentGatewayInterface
 {
 
     public function callBack(array $payload): PaymentResourceInterface;
-
-    public function formatData(Transaction $transaction): array;
-
     public function makeRequest(string $endpoint, array $data = []): Response;
 }
