@@ -42,10 +42,10 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
         if ($response->successful()) {
             $responseData = $response->json();
 
-            DB::transaction(function () use ($stripeTransaction, $transaction, $responseData) {
-                $stripeTransaction->update(['transaction_id' => $responseData['id'], 'checkout_url' => $responseData['url']]);
-                $transaction->paymentMethodGateway()->associate($stripeTransaction)->save();
-            });
+
+            $stripeTransaction->update(['transaction_id' => $responseData['id'], 'checkout_url' => $responseData['url']]);
+            $transaction->paymentMethodGateway()->associate($stripeTransaction)->save();
+
 
             return new IntializePaymentSuccessResource(
                 data: [
