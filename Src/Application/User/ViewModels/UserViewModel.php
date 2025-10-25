@@ -21,7 +21,7 @@ class UserViewModel
 
         return  fractal()->item($this->resource->getData()['user'] ?? $this->resource->getData())
             ->transformWith(new UserTransformer())
-            ->addMeta(['token_type' => 'Bearer', 'token' => $this->resource->getData()['token'] ?? null, 'success' => $this->resource->isSuccess() ?? null, 'code' => $this->resource->getCode()])
+            ->addMeta(['token_type' => 'Bearer', 'token' => $this->resource->getData()['token'] ?? null, 'success' => $this->resource->isSuccess() ?? null, 'code' => $this->resource->getCode(), 'message' => $this->resource->getMessage()])
             ->toArray();
     }
 }

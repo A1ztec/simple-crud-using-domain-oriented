@@ -31,6 +31,17 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
     public function processPayment(Transaction $transaction): PaymentResourceInterface
     {
 
+        if ($transaction?->paymentMethodGateway) {
+            return new IntializePaymentSuccessResource(
+                data: [
+                    'checkout_url' => $transaction->paymentMethodGateway->checkout_url,
+                    'session_id' => $transaction->paymentMethodGateway->transaction_id,
+                    'reference_id' => $transaction->reference_id,
+                ],
+                message: 'Payment processing already initiated , Check status using reference ID'
+            );
+        }
+
         $stripeTransaction = StripePaymentTransaction::create([
             'payment_id' => $transaction->id,
             'amount' => $transaction->amount,

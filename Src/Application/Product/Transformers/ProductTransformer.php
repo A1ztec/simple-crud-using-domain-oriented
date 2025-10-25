@@ -18,6 +18,7 @@ class ProductTransformer extends TransformerAbstract
             'name' => $data->name ?? null,
             'description' => $data->description ?? null,
             'price' => $data->price ?? null,
+            'quantity' => $data->quantity ?? null,
             'image' => $data->image ? url($data->image) : null,
         ];
     }

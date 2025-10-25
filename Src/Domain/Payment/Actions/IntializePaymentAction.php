@@ -15,19 +15,15 @@ class IntializePaymentAction
     public function __invoke(CreateTransactionDto $dto): PaymentResourceInterface
     {
         try {
+            $resource = (new CreateTransactionAction())($dto);
 
-            return DB::transaction(function () use ($dto) {
+            if (!$resource->isSuccess()) return $resource;
 
-                $resource = (new CreateTransactionAction())($dto);
+            $transaction = $resource->getData();
 
-                if (!$resource->isSuccess()) return $resource;
+            $gateway = (new PaymentGatewayFactory())->make($dto->gateway);
 
-                $transaction = $resource->getData();
-
-                $gateway = (new PaymentGatewayFactory())->make($dto->gateway);
-                
-                return $gateway->processPayment($transaction);
-            });
+            return $gateway->processPayment($transaction);
         } catch (Exception $e) {
             Log::channel('payment')->error('Payment initialization failed', ['error' => $e->getMessage()]);
             return new IntializePaymentFailedResource();

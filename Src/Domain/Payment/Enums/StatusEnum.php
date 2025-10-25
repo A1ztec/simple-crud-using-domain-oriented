@@ -11,6 +11,8 @@ class StatusEnum
     public const PROCESSING = 'processing';
     public const FAILED = 'failed';
 
+    public const EXPIRED = 'expired';
+
 
     public static function stripeStatus($status): string
     {

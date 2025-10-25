@@ -14,13 +14,16 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class);
-            $table->float('amount');
+            $table->decimal('amount', 10, 2);
             $table->string('status');
             $table->string('reference_id')->unique()->nullable();
             $table->string('gateway');
             $table->nullableMorphs('payment_method_gateway');
             $table->timestamps();
+
+
+            $table->foreignIdFor(User::class);
+
 
             $table->index('user_id');
             $table->index('status');

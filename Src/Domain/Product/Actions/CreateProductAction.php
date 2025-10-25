@@ -26,6 +26,7 @@ class CreateProductAction
                 'name' => $dto->name,
                 'description' => $dto->description,
                 'price' => $dto->price,
+                'quanity' => $dto->quantity,
                 'image' => $path
             ]);
 

@@ -11,6 +11,7 @@ class Product extends Model
         'name',
         'description',
         'price',
+        'quantity',
         'image',
     ];
 
@@ -18,6 +19,4 @@ class Product extends Model
         'price' => 'float',
         'created_at' => 'datetime',
     ];
-
-    
 }

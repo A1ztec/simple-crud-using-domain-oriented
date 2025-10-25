@@ -11,6 +11,7 @@ class UpdateProductData
         public ?string $name = null,
         public ?string $description = null,
         public ?float $price = null,
+        public ?int $quantity = null,
         public null|UploadedFile|string $image = null
     ) {}
 }
