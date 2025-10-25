@@ -29,10 +29,16 @@ class CreateTransactionAction
             );
         }
 
-
         try {
 
-            Order::where('uuid', $data->order_uuid)->lockForUpdate()->first();
+            $order = Order::where('uuid', $data->order_uuid)->lockForUpdate()->first();
+
+            if (!$order) {
+                return new CreateTransactionFailedResource(
+                    message: 'Order not found'
+                );
+            }
+
 
             $transaction = Transaction::where('order_uuid', $data->order_uuid)
                 ->whereIn('status', [StatusEnum::PENDING, StatusEnum::PROCESSING])

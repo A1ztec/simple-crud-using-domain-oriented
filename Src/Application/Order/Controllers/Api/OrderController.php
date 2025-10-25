@@ -19,12 +19,11 @@ class OrderController
 
     #[Post(
         uri: '/',
-        name: 'orders.store'
+        name: 'orders.store',
+        middleware: ['permission:create_order']
     )]
     public function store(CreateOrderRequest $request, CreateOrderAction $action)
     {
-        Gate::authorize('create_order');
-
         $data = $request->validated();
         $data['items'] = array_map(function ($item) {
             return new CreateOrderItemDto(productId: $item['product_id'], quantity: $item['quantity'], price: $item['price']);

@@ -2,6 +2,7 @@
 
 namespace Domain\Payment\Gateways;
 
+use Domain\Order\Events\OrderCreated;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -10,6 +11,7 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Domain\Payment\Enums\GatewayEnum;
 use Domain\Payment\Models\Transaction;
+use Domain\Order\Enums\OrderStatusEnum;
 use Domain\Payment\Models\StripePaymentTransaction;
 use Domain\Payment\Contracts\PaymentGatewayInterface;
 use Domain\Payment\Contracts\OnlinePaymentGatewayInterface;
@@ -90,6 +92,12 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
 
             $stripeTransaction->update(['gateway_response' => $payload, 'status' => $status]);
             $stripeTransaction->transaction->update(['status' => $status]);
+            $stripeTransaction->transaction->order->update([
+                'status' => OrderStatusEnum::COMPLETED,
+                'paid_at' => now()
+            ]);
+
+            event(new OrderCreated($order = $stripeTransaction->transaction->order->load(['user', 'transaction', 'Transaction'])));
         });
 
         return new IntializePaymentSuccessResource(

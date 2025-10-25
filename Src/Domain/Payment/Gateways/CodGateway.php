@@ -6,8 +6,10 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Domain\Payment\Enums\StatusEnum;
+use Domain\Order\Events\OrderCreated;
 use Domain\Payment\Enums\GatewayEnum;
 use Domain\Payment\Models\Transaction;
+use Domain\Order\Enums\OrderStatusEnum;
 use Domain\Payment\Models\CodPaymentTransaction;
 use Domain\Payment\Contracts\PaymentGatewayInterface;
 use Domain\Payment\Resources\IntializePaymentFailedResource;
@@ -32,6 +34,13 @@ class CodGateway implements PaymentGatewayInterface
                 'payment_method_gateway_type' => $this->getGatewayName(),
                 'status' => StatusEnum::SUCCESS,
             ]);
+
+            $transaction->order->update([
+                'status' => OrderStatusEnum::COMPLETED,
+                'paid_at' => now()
+            ]);
+
+            event(new OrderCreated($order = $codTransaction->transaction->order->load(['user', 'transaction', 'Transaction'])));
 
             return new IntializePaymentSuccessResource(
                 data: [
