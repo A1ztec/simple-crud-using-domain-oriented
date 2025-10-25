@@ -81,31 +81,39 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
         $sessionId = $payload['session_id'];
         $paymentStatus = $payload['payment_status'];
 
-        $stripeTransaction = StripePaymentTransaction::where('transaction_id', $sessionId)->with('transaction')->first();
+        $stripeTransaction = StripePaymentTransaction::where('transaction_id', $sessionId)
+            ->with(['transaction.order.user', 'transaction.order.items'])
+            ->first();
 
-
-        if (!$stripeTransaction) return new IntializePaymentFailedResource(message: 'Transaction not Found for this session_id');
+        if (!$stripeTransaction) {
+            return new IntializePaymentFailedResource(message: 'Transaction not Found for this session_id');
+        }
 
         $status = StatusEnum::stripeStatus($paymentStatus);
 
         DB::transaction(function () use ($stripeTransaction, $payload, $status) {
-
             $stripeTransaction->update(['gateway_response' => $payload, 'status' => $status]);
             $stripeTransaction->transaction->update(['status' => $status]);
             $stripeTransaction->transaction->order->update([
                 'status' => OrderStatusEnum::COMPLETED,
                 'paid_at' => now()
             ]);
-
-            event(new OrderCreated($order = $stripeTransaction->transaction->order->load(['user', 'transaction', 'Transaction'])));
         });
+
+
+
+
+        event(new OrderCreated($stripeTransaction->transaction->order->load('user', 'items')));
+        Log::channel('payment')->info('Successfully dispatched OrderCreated event');
+
+
 
         return new IntializePaymentSuccessResource(
             data: [
                 'reference_id' => $stripeTransaction->transaction->reference_id,
                 'status' => $status,
             ],
-            message: 'Stripe Payment Proccessed Successfully'
+            message: 'Stripe Payment Processed Successfully'
         );
     }
 

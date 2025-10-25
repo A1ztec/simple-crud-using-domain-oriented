@@ -34,7 +34,7 @@ class CreateOrderAction
                     throw new Exception('You have a pending order. Please complete or cancel it before creating a new one.');
                 }
 
-                
+
                 $productIds = array_map(fn($item) => $item->productId, $dto->items);
                 sort($productIds);
                 $products = Product::whereIn('id', $productIds)

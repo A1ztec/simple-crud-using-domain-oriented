@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace Domain\Order\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Domain\Order\Models\Order;
@@ -37,7 +37,7 @@ class OrderCreatedNotification extends Notification
     {
         return (new MailMessage)
             ->subject('Order Created Successfully')
-            ->view('emails.orders.created', [
+            ->view('emails.order-created', [
                 'order' => $this->order,
             ]);
     }

@@ -40,7 +40,7 @@ class CodGateway implements PaymentGatewayInterface
                 'paid_at' => now()
             ]);
 
-            event(new OrderCreated($order = $codTransaction->transaction->order->load(['user', 'transaction', 'Transaction'])));
+            event(new OrderCreated($order = $codTransaction->transaction->order->load('user', 'items')));
 
             return new IntializePaymentSuccessResource(
                 data: [
