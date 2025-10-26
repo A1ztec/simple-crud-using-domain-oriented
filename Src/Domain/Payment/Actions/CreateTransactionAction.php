@@ -39,7 +39,6 @@ class CreateTransactionAction
                 );
             }
 
-
             $transaction = Transaction::where('order_uuid', $data->order_uuid)
                 ->whereIn('status', [StatusEnum::PENDING, StatusEnum::PROCESSING])
                 ->first();
@@ -60,9 +59,9 @@ class CreateTransactionAction
                 'reference_id' => $ReferenceId,
             ]);
 
-            // ExpirePendingTransactionJob::dispatch($transaction->id)->onQueue('payment')
-            // ->delay(now()->addMinutes(10));
 
+            ExpirePendingTransactionJob::dispatch($transaction->id)->onQueue('payment')
+                ->delay(now()->addMinutes(10));
 
             return new CreateTransactionSuccessResource($transaction);
         } catch (Exception $e) {

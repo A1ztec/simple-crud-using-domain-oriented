@@ -37,18 +37,12 @@ class CreateOrderAction
                         'order_uuid' => $existingOrder->uuid,
                         'has_transaction' => $existingOrder->transaction ? true : false,
                         'transaction_status' => $existingOrder->transaction ? $existingOrder->transaction->status : null,
-                        'user_id' => Auth::id()
                     ]);
 
                     $transaction = $existingOrder->transaction;
 
                     if (!$transaction || $transaction->status == StatusEnum::EXPIRED) {
-                        $transactionDto = new CreateTransactionDto(
-                            user_id: Auth::id(),
-                            amount: $existingOrder->total_amount,
-                            gateway: $dto->gateway,
-                            order_uuid: $existingOrder->uuid
-                        );
+                        $transactionDto = new CreateTransactionDto(user_id: Auth::id(), amount: $existingOrder->total_amount, gateway: $dto->gateway, order_uuid: $existingOrder->uuid);
 
                         $resource = (new IntializePaymentAction())($transactionDto);
 
@@ -61,24 +55,21 @@ class CreateOrderAction
                         $data = $resource->getData();
                         // $data['order'] = $order;
 
-                        return new CreateOrderSuccessResource(data: $data, message: "Existing pending order found, new transaction created");
+                        return new CreateOrderSuccessResource(data: $data, message: "New transaction created for existing pending order");
                     }
 
                     if (in_array($transaction->status, [StatusEnum::PENDING, StatusEnum::PROCESSING])) {
-                        $data = [
-                            'payment_method' => $transaction->paymentMethodGateway
-                        ];
-
-                        return new CreateOrderSuccessResource(data: $data, message: "Existing pending transaction found");
+                        $data = ['checkout' => $transaction->paymentMethodGateway];
+                        return new CreateOrderSuccessResource(data: $data, message: "you have an existing pending transaction for uncompleted order continue with that");
                     }
                 }
 
                 $productIds = array_map(fn($item) => $item->productId, $dto->items);
                 sort($productIds);
+
                 $products = Product::whereIn('id', $productIds)
                     ->lockForUpdate()
-                    ->get()
-                    ->keyBy('id');
+                    ->get();
 
                 $validationResult = (new ValidateOrderCreationData())($dto, $products);
                 if (!$validationResult->isSuccess()) {
@@ -114,12 +105,7 @@ class CreateOrderAction
                     ]);
                 }
 
-                $transactionDto = new CreateTransactionDto(
-                    user_id: Auth::id(),
-                    amount: $calculatedTotal,
-                    gateway: $dto->gateway,
-                    order_uuid: $orderUuid
-                );
+                $transactionDto = new CreateTransactionDto(user_id: Auth::id(), amount: $calculatedTotal, gateway: $dto->gateway, order_uuid: $orderUuid);
 
                 $resource = (new IntializePaymentAction())($transactionDto);
 
