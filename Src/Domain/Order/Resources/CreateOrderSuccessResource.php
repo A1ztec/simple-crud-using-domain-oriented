@@ -10,7 +10,7 @@ use Domain\Payment\Resources\Contracts\PaymentResourceInterface;
 
 class CreateOrderSuccessResource implements OrderResourceInterface
 {
-    public function __construct(private array $data) {}
+    public function __construct(private array $data, private ?string $message = null) {}
 
     public function isSuccess(): bool
     {
@@ -24,7 +24,7 @@ class CreateOrderSuccessResource implements OrderResourceInterface
 
     public function getMessage(): string
     {
-        return 'Order created successfully';
+        return $this->message ?? 'Order created successfully';
     }
 
     public function getData(): array

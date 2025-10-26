@@ -9,6 +9,7 @@ use Domain\Order\Models\OrderItem;
 use Domain\Product\Models\Product;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Domain\Payment\Enums\StatusEnum;
 use Illuminate\Support\Facades\Auth;
 use Domain\Order\Enums\OrderStatusEnum;
 use Domain\Order\DataObjects\CreateOrderDto;
@@ -25,15 +26,52 @@ class CreateOrderAction
         try {
             return DB::transaction(function () use ($dto) {
 
-                $existingOrder = Order::where('user_id', Auth::id())
+                $existingOrder = Order::with('transaction')->where('user_id', Auth::id())
                     ->where('status', OrderStatusEnum::PENDING)
                     ->lockForUpdate()
                     ->first();
 
                 if ($existingOrder) {
-                    throw new Exception('You have a pending order. Please complete or cancel it before creating a new one.');
-                }
 
+                    Log::info('Existing pending order found', [
+                        'order_uuid' => $existingOrder->uuid,
+                        'has_transaction' => $existingOrder->transaction ? true : false,
+                        'transaction_status' => $existingOrder->transaction ? $existingOrder->transaction->status : null,
+                        'user_id' => Auth::id()
+                    ]);
+
+                    $transaction = $existingOrder->transaction;
+
+                    if (!$transaction || $transaction->status == StatusEnum::EXPIRED) {
+                        $transactionDto = new CreateTransactionDto(
+                            user_id: Auth::id(),
+                            amount: $existingOrder->total_amount,
+                            gateway: $dto->gateway,
+                            order_uuid: $existingOrder->uuid
+                        );
+
+                        $resource = (new IntializePaymentAction())($transactionDto);
+
+                        if (!$resource->isSuccess()) {
+                            throw new Exception('Payment initialization failed: ' . $resource->getMessage());
+                        }
+
+                        $existingOrder->load(['items', 'transaction']);
+
+                        $data = $resource->getData();
+                        // $data['order'] = $order;
+
+                        return new CreateOrderSuccessResource(data: $data, message: "Existing pending order found, new transaction created");
+                    }
+
+                    if (in_array($transaction->status, [StatusEnum::PENDING, StatusEnum::PROCESSING])) {
+                        $data = [
+                            'payment_method' => $transaction->paymentMethodGateway
+                        ];
+
+                        return new CreateOrderSuccessResource(data: $data, message: "Existing pending transaction found");
+                    }
+                }
 
                 $productIds = array_map(fn($item) => $item->productId, $dto->items);
                 sort($productIds);
@@ -92,7 +130,7 @@ class CreateOrderAction
                 $order->load(['items', 'transaction']);
 
                 $data = $resource->getData();
-                $data['order'] = $order;
+                // $data['order'] = $order;
 
                 return new CreateOrderSuccessResource(data: $data);
             });
