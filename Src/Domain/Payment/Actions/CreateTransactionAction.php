@@ -31,7 +31,7 @@ class CreateTransactionAction
 
         try {
 
-            $order = Order::where('uuid', $data->order_uuid)->lockForUpdate()->first();
+            $order = Order::where('uuid', $data->order_uuid)->first();
 
             if (!$order) {
                 return new CreateTransactionFailedResource(

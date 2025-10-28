@@ -16,18 +16,18 @@ class ValidateOrderCreationData
     {
 
         if ($products->count() !== count($dto->items)) {
-            return new ValidateOrderCreationFailedResource(message: 'One or more products not found in my inventory');
+            return new ValidateOrderCreationFailedResource(message: 'One_or_more_products_not_found_in_my_inventory');
         }
 
         foreach ($dto->items as $item) {
             $product = $products->get($item->productId);
 
             if (!$product) {
-                return new ValidateOrderCreationFailedResource(message: 'Product not found in my inventory');
+                return new ValidateOrderCreationFailedResource(message: 'Product_not_found_in_my_inventory');
             }
 
             if ($product->quantity < $item->quantity) {
-                return new ValidateOrderCreationFailedResource(message: 'not enough product quantity in my inventory');
+                return new ValidateOrderCreationFailedResource(message: 'not_enough_product_quantity_in_my_inventory');
             }
         }
 

@@ -10,9 +10,6 @@ class TransactionTransformer extends TransformerAbstract
 {
     public function transform(?Transaction $transaction): array
     {
-        if (!$transaction) {
-            return [];
-        }
 
         return [
             'id' => $transaction->id,

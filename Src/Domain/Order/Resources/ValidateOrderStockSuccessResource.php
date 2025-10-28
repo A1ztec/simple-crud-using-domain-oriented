@@ -1,25 +1,24 @@
 <?php
 
-
 namespace Domain\Order\Resources;
 
 use Domain\Order\Resources\Contracts\OrderResourceInterface;
 
-class HandleOrderTransactionFailedResource implements OrderResourceInterface
-{
 
-    public function isSuccess(): bool
-    {
-        return false;
-    }
+class ValidateOrderStockSuccessResource implements OrderResourceInterface
+{
 
     public function getCode(): int
     {
-        return 400;
+        return 200;
+    }
+    public function isSuccess(): bool
+    {
+        return true;
     }
     public function getMessage(): string
     {
-        return trans('handle_order_transaction_failed');
+        return trans('All_products_are_in_stock');
     }
 
     public function getData(): array

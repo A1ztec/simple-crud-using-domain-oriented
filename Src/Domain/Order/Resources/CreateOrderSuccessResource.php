@@ -9,7 +9,7 @@ use Domain\Order\Resources\Contracts\OrderResourceInterface;
 
 class CreateOrderSuccessResource implements OrderResourceInterface
 {
-    public function __construct(private array $data, private ?string $message = null) {}
+    public function __construct(private array $data) {}
 
     public function isSuccess(): bool
     {
@@ -23,7 +23,7 @@ class CreateOrderSuccessResource implements OrderResourceInterface
 
     public function getMessage(): string
     {
-        return $this->message ?? 'Order created successfully';
+        return trans('Order_created_successfully');
     }
 
     public function getData(): array

@@ -19,8 +19,7 @@ class TransactionViewModel
         $data = $resource->getData();
 
         if ($data instanceof Transaction) {
-            return fractal()->item($data)
-                ->transformWith(new TransactionTransformer())
+            return fractal()->item($data, new TransactionTransformer(), 'transactions')
                 ->serializeWith(new JsonApiSerializer())
                 ->addMeta([
                     'success' => true,

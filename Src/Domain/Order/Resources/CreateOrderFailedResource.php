@@ -9,7 +9,6 @@ use Domain\Order\Resources\Contracts\OrderResourceInterface;
 
 class CreateOrderFailedResource implements OrderResourceInterface
 {
-    public function __construct(private ?string $message = null) {}
 
     public function isSuccess(): bool
     {
@@ -23,7 +22,7 @@ class CreateOrderFailedResource implements OrderResourceInterface
 
     public function getMessage(): string
     {
-        return $this->message ?? 'Order creation failed';
+        return  trans('Order_creation_failed');
     }
 
     public function getData(): null

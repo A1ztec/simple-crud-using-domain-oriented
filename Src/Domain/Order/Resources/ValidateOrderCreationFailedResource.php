@@ -23,7 +23,7 @@ class ValidateOrderCreationFailedResource implements OrderResourceInterface
 
     public function getMessage(): string
     {
-        return $this->message ?? 'order_validation_failed';
+        return trans($this->message);
     }
 
     public function getData(): null

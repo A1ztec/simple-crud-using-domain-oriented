@@ -15,21 +15,26 @@ class HandleOrderTransactionAction
 {
     public function __invoke($order, $gateway)
     {
+        $stockValid = (new ValidateOrderStockBeforePaymentAction())($order);
+        if (!$stockValid->isSuccess()) {
+            return $stockValid;
+        }
 
         $transaction = $order->transaction;
 
         if (!$transaction || $transaction->status === StatusEnum::EXPIRED) {
+            $order->unsetRelation('transaction');
             $data = ['user_id' => Auth::id(), 'amount' => $order->total_amount, 'gateway' => $gateway, 'order_uuid' => $order->uuid];
             $transactionDto = CreateTransactionDto::setData($data);
             $resource = (new IntializePaymentAction())($transactionDto);
             if (!$resource->isSuccess()) {
                 throw new Exception('Payment initialization failed: ' . $resource->getMessage());
             }
-            Log::info('Created new transaction for order', ['order_uuid' => $order->uuid, 'transaction_id' => $resource->getData()->id]);
+            Log::info('Created new transaction for order', ['order_uuid' => $order->uuid, 'transaction' => $resource->getData()]);
             return new HandleOrderTransactionSuccessResource(data: ['transaction' => $resource->getData()]);
         }
         if (in_array($transaction->status, [StatusEnum::PENDING, StatusEnum::PROCESSING])) {
-            Log::info('Using existing pending/processing transaction', ['transaction_id' => $transaction->id]);
+            Log::info('Using existing pending/processing transaction', ['transaction' => $transaction]);
             $transaction->load('paymentMethodGateway');
             return new HandleOrderTransactionSuccessResource(data: ['transaction' => $transaction->paymentMethodGateway]);
         }

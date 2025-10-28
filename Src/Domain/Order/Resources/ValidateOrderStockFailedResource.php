@@ -5,25 +5,24 @@ namespace Domain\Order\Resources;
 
 use Domain\Order\Resources\Contracts\OrderResourceInterface;
 
-class CheckForPendingOrderFailedResource implements OrderResourceInterface
+
+class ValidateOrderStockFailedResource implements OrderResourceInterface
 {
+
+    public function getCode(): int
+    {
+        return 400;
+    }
     public function isSuccess(): bool
     {
         return false;
     }
-
-    public function getCode(): int
-    {
-        return 404;
-    }
-
     public function getMessage(): string
     {
-        return trans('No_Pending_Order_Found');
+        return trans('One_or_more_products_are_out_of_stock');
     }
-
     public function getData(): ?array
     {
-        return null;
+        return [];
     }
 }

@@ -21,13 +21,12 @@ class HandleOrderTransactionSuccessResource implements OrderResourceInterface
         return 200;
     }
 
+    public function getMessage(): string
+    {
+        return trans('Order_transaction_handled_successfully');
+    }
     public function getData(): array
     {
         return $this->data;
-    }
-
-    public function getMessage(): string
-    {
-        return 'Order transaction handled successfully.';
     }
 }

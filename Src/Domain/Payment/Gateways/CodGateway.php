@@ -44,6 +44,7 @@ class CodGateway implements PaymentGatewayInterface
 
             return new IntializePaymentSuccessResource(
                 data: [
+                    'transaction_id' => $transaction->id,
                     'reference_id' => $transaction->reference_id,
                     'amount' => $transaction->amount,
                 ],

@@ -1,12 +1,16 @@
 <?php
 
+
 namespace Domain\Order\Resources;
 
 use Domain\Order\Resources\Contracts\OrderResourceInterface;
 
-class ValidateOrderCreationSuccessResource implements OrderResourceInterface
-{
 
+class CheckForPendingOrderSuccessResource implements OrderResourceInterface
+{
+    public function __construct(
+        protected ?array $data = null,
+    ) {}
 
     public function isSuccess(): bool
     {
@@ -20,11 +24,11 @@ class ValidateOrderCreationSuccessResource implements OrderResourceInterface
 
     public function getMessage(): string
     {
-        return trans('Order_Data_validated_Successfully');
+        return trans('Pending_Order_Found');
     }
 
     public function getData(): ?array
     {
-        return null;
+        return $this->data;
     }
 }

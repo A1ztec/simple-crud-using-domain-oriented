@@ -17,7 +17,10 @@ class CheckForPendingOrderAction
             return new CheckForPendingOrderFailedResource();
         }
         $resource = (new HandleOrderTransactionAction())($existingOrder, $dto->gateway);
-        $data = ['order' => $existingOrder, 'transaction' => $resource->getData()['transaction']];
+        if (!$resource->isSuccess()) {
+            return $resource;
+        }
+        $data = ['transaction' => $resource->getData()['transaction']];
         return new CheckForPendingOrderSuccessResource(data: $data);
     }
 }

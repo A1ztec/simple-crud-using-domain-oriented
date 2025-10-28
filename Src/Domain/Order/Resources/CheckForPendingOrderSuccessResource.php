@@ -19,7 +19,7 @@ class CheckForPendingOrderSuccessResource implements OrderResourceInterface
 
     public function getMessage(): string
     {
-        return 'Pending_Order_Found_Successfully';
+        return trans('Pending_Order_Found_Successfully');
     }
 
     public function getData(): ?array
