@@ -3,8 +3,6 @@
 
 namespace Application\Order\Controllers\Api;
 
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 use Domain\Order\Actions\CreateOrderAction;
 use Spatie\RouteAttributes\Attributes\Post;
 use Domain\Order\DataObjects\CreateOrderDto;
@@ -24,12 +22,6 @@ class OrderController
     )]
     public function store(CreateOrderRequest $request, CreateOrderAction $action)
     {
-        $data = $request->validated();
-        $data['items'] = array_map(function ($item) {
-            return new CreateOrderItemDto(productId: $item['product_id'], quantity: $item['quantity'], price: $item['price']);
-        }, $data['items']);
-
-        $dto = new CreateOrderDto(...$data);
-        return (new OrderViewModel())->toResponse($action($dto));
+        return (new OrderViewModel())->toResponse($action(CreateOrderDto::fromRequest($request->validated())));
     }
 }

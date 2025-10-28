@@ -50,10 +50,7 @@ class ProductController
     )]
     public function store(CreateProductRequest $request, CreateProductAction $createProductAction)
     {
-        $data = $request->validated();
-        $dto = new CreateProductData(...$data);
-        $resource = $createProductAction->execute($dto);
-        return (new ProductViewModel($resource))->toResponse();
+        return (new ProductViewModel())->toResponse($createProductAction->execute(CreateProductData::fromRequest($request->validated())));
     }
 
     #[Post(
@@ -64,7 +61,7 @@ class ProductController
     {
         $data = $request->validated();
         $data['id'] = $product->id;
-        return (new ProductViewModel($updateProductAction->execute(new UpdateProductData($data))))->toResponse();
+        return (new ProductViewModel())->toResponse($updateProductAction->execute(new UpdateProductData($data)));
     }
 
     #[Delete(

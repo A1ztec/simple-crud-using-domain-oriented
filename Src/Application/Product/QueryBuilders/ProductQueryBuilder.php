@@ -16,4 +16,9 @@ class ProductQueryBuilder
     {
         return Product::where('id', $id)->first() ?? null;
     }
+
+    public function getProductsByIds(array $ids)
+    {
+        return Product::whereIn('id', $ids)->get()->keyBy('id');
+    }
 }

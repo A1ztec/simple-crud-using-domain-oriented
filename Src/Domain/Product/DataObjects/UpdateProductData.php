@@ -14,4 +14,17 @@ class UpdateProductData
         public ?int $quantity = null,
         public null|UploadedFile|string $image = null
     ) {}
+
+
+    public static function fromRequest(array $data): UpdateProductData
+    {
+        return new UpdateProductData(
+            id: $data['id'],
+            name: $data['name'] ?? null,
+            description: $data['description'] ?? null,
+            price: $data['price'] ?? null,
+            quantity: $data['quantity'] ?? null,
+            image: $data['image'] ?? null,
+        );
+    }
 }

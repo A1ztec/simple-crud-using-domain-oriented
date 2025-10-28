@@ -1,16 +1,12 @@
 <?php
 
-
 namespace Domain\Order\Resources;
-
 
 use Domain\Order\Resources\Contracts\OrderResourceInterface;
 
-
-class CreateOrderSuccessResource implements OrderResourceInterface
+class CheckForPendingOrderSuccessResource implements OrderResourceInterface
 {
-    public function __construct(private array $data, private ?string $message = null) {}
-
+    public function __construct(private ?array $data = null) {}
     public function isSuccess(): bool
     {
         return true;
@@ -18,15 +14,15 @@ class CreateOrderSuccessResource implements OrderResourceInterface
 
     public function getCode(): int
     {
-        return 201;
+        return 200;
     }
 
     public function getMessage(): string
     {
-        return $this->message ?? 'Order created successfully';
+        return 'Pending_Order_Found_Successfully';
     }
 
-    public function getData(): array
+    public function getData(): ?array
     {
         return $this->data;
     }

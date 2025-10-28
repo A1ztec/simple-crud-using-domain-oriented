@@ -3,7 +3,6 @@
 namespace Application\Payment\QueryBuilders;
 
 use Domain\Payment\Models\Transaction;
-use Illuminate\Support\Facades\Schema;
 
 class TransactionQueryBuilder
 {

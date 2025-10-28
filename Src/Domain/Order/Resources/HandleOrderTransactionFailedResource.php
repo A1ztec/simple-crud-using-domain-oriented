@@ -3,31 +3,27 @@
 
 namespace Domain\Order\Resources;
 
-
 use Domain\Order\Resources\Contracts\OrderResourceInterface;
 
-
-class CreateOrderSuccessResource implements OrderResourceInterface
+class HandleOrderTransactionFailedResource implements OrderResourceInterface
 {
-    public function __construct(private array $data, private ?string $message = null) {}
 
     public function isSuccess(): bool
     {
-        return true;
+        return false;
     }
 
     public function getCode(): int
     {
-        return 201;
+        return 400;
     }
-
     public function getMessage(): string
     {
-        return $this->message ?? 'Order created successfully';
+        return 'handle order transaction failed.';
     }
 
     public function getData(): array
     {
-        return $this->data;
+        return [];
     }
 }

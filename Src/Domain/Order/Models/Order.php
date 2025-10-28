@@ -6,17 +6,18 @@ use Domain\User\Models\User;
 use Domain\Order\Models\OrderItem;
 use Domain\Payment\Models\Transaction;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-    use HasUlids;
+    use HasUuids;
 
     protected $primaryKey = 'uuid';
     public $incrementing = false;
     protected $keyType = 'string';
+
     protected $fillable = [
-        'uuid',
         'user_id',
         'total_amount',
         'status',
@@ -29,10 +30,6 @@ class Order extends Model
         'paid_at' => 'datetime',
     ];
 
-    public function uniqueIds(): array
-    {
-        return ['uuid'];
-    }
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -46,6 +43,6 @@ class Order extends Model
 
     public function transaction()
     {
-        return $this->hasOne(Transaction::class, 'order_uuid', 'uuid');
+        return $this->hasOne(Transaction::class, 'order_uuid', 'uuid')->latestOfMany('created_at');
     }
 }

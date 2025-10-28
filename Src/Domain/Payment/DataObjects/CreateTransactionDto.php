@@ -13,4 +13,10 @@ class CreateTransactionDto
         public readonly ?string $reference_id = null,
         public readonly ?string $status = null,
     ) {}
+
+
+    public static function setData(array $data): CreateTransactionDto
+    {
+        return new CreateTransactionDto(...$data);
+    }
 }

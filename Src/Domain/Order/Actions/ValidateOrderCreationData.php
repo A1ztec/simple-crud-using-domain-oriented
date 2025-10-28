@@ -19,8 +19,6 @@ class ValidateOrderCreationData
             return new ValidateOrderCreationFailedResource(message: 'One or more products not found in my inventory');
         }
 
-        $calculatedTotal = 0;
-
         foreach ($dto->items as $item) {
             $product = $products->get($item->productId);
 
@@ -31,18 +29,8 @@ class ValidateOrderCreationData
             if ($product->quantity < $item->quantity) {
                 return new ValidateOrderCreationFailedResource(message: 'not enough product quantity in my inventory');
             }
-
-            if ($product->price != $item->price) {
-                return new ValidateOrderCreationFailedResource(message: 'Product price has changed');
-            }
-
-            $calculatedTotal += $product->price * $item->quantity;
         }
 
-        if ($calculatedTotal != $dto->totalAmount) {
-            return new ValidateOrderCreationFailedResource(message: 'Total amount does not match');
-        }
-
-        return new ValidateOrderCreationSuccessResource(data: ['calculated_total' => $calculatedTotal]);
+        return new ValidateOrderCreationSuccessResource();
     }
 }

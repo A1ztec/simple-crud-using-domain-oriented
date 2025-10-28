@@ -2,8 +2,6 @@
 
 namespace Application\Payment\Requests;
 
-use Illuminate\Validation\Rule;
-use Domain\Payment\Enums\Gateway;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CheckTransactionRequest extends FormRequest

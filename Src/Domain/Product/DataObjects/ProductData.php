@@ -14,4 +14,11 @@ class ProductData
         public ?string $created_at,
         public ?string $updated_at,
     ) {}
+
+
+
+    public static function setData(array $data): ProductData
+    {
+        return new ProductData(...$data);
+    }
 }

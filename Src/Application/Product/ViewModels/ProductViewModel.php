@@ -8,17 +8,17 @@ use Domain\Product\Resources\Contracts\ProductResourceInterface;
 
 class ProductViewModel
 {
-    public function __construct(private ProductResourceInterface $resource) {}
 
-    public function toResponse()
+
+    public function toResponse(ProductResourceInterface $resource)
     {
-        return fractal()->item($this->resource->getData())
+        return fractal()->item($resource->getData())
             ->serializeWith(new JsonApiSerializer())
             ->transformWith(new ProductTransformer())
             ->addMeta([
-                'success' => $this->resource->isSuccess(),
-                'message' => $this->resource->getMessage(),
-                'code' => $this->resource->getCode()
+                'success' => $resource->isSuccess(),
+                'message' => $resource->getMessage(),
+                'code' => $resource->getCode()
             ])
             ->toArray();
     }

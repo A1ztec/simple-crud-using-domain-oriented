@@ -23,19 +23,19 @@ return [
         base_path('Src/Application/Product/Controllers') => [
             'namespace' => 'Application\Product\Controllers',
             'prefix' => 'api/v1',
-            'middleware' => ['jwt.auth'],
+            'middleware' => ['mjwt.auth'],
         ],
 
         base_path('Src/Application/Payment/Controllers') => [
             'namespace' => 'Application\Payment\Controllers',
             'prefix' => 'api/v1',
-            'middleware' => ['jwt.auth'],
+            'middleware' => ['mjwt.auth'],
         ],
 
         base_path('Src/Application/Order/Controllers') => [
             'namespace' => 'Application\Order\Controllers',
             'prefix' => 'api/v1',
-            'middleware' => ['jwt.auth'],
+            'middleware' => ['mjwt.auth'],
 
         ]
         /*

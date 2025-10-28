@@ -19,6 +19,7 @@ class OrderViewModel
                 ->parseIncludes(['items', 'transaction'])
                 ->serializeWith(new JsonApiSerializer())
                 ->addMeta([
+                    'checkout' => $resource->getData()['transaction'] ?? null,
                     'success' => true,
                     'message' => $resource->getMessage(),
                     'code' => $resource->getCode()
