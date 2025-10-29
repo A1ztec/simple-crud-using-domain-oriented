@@ -11,14 +11,18 @@ class CreateOrderItemsAction
     public function __invoke(array $items, string $orderUuid, Collection $products): void
     {
 
-        foreach ($items as $item) {
+        $orderItems = collect($items)->map(function ($item) use ($products, $orderUuid) {
             $product = $products->get($item->productId);
-            OrderItem::create([
+            return [
                 'order_uuid' => $orderUuid,
                 'product_id' => $item->productId,
                 'quantity' => $item->quantity,
                 'price' => $product->price,
-            ]);
-        }
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        })->toArray();
+
+        OrderItem::insert($orderItems);
     }
 }

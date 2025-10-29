@@ -5,12 +5,8 @@ namespace Domain\Order\Resources;
 
 use Domain\Order\Resources\Contracts\OrderResourceInterface;
 
-
-
-class ValidateOrderCreationFailedResource implements OrderResourceInterface
+class ProcessPendingOrderFailedResource implements OrderResourceInterface
 {
-    public function __construct(private ?string $message = null) {}
-
     public function isSuccess(): bool
     {
         return false;
@@ -18,15 +14,15 @@ class ValidateOrderCreationFailedResource implements OrderResourceInterface
 
     public function getCode(): int
     {
-        return 422;
+        return 404;
     }
 
     public function getMessage(): string
     {
-        return trans($this->message);
+        return trans('Failed_to_process_pending_order');
     }
 
-    public function getData(): null
+    public function getData(): ?array
     {
         return null;
     }

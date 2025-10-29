@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ChangeLanguage;
 use Support\Traits\apiResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -36,6 +37,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => RoleOrPermissionMiddleware::class,
             'mjwt.auth' => JwtMiddleware::class,
         ]);
+        $middleware->api([ChangeLanguage::class]);
         //
         // })->withSchedule(function (Schedule $schedule): void {
         //     $schedule->call(function () {

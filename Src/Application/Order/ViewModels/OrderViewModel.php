@@ -21,7 +21,7 @@ class OrderViewModel
                 ->addMeta([
                     'checkout' => $resource->getData()['transaction'] ?? null,
                     'success' => true,
-                    'message' => $resource->getMessage(),
+                    'message' => trans($this->module() . 'app.' . $resource->getMessage()),
                     'code' => $resource->getCode()
                 ])
                 ->toArray();
@@ -31,9 +31,14 @@ class OrderViewModel
             'data' => $resource->getData(),
             'meta' => [
                 'success' => $resource->isSuccess(),
-                'message' => $resource->getMessage(),
+                'message' => trans($this->module() . 'app.' . $resource->getMessage()),
                 'code' => $resource->getCode()
             ]
         ], $resource->getCode());
+    }
+
+    private function module(): string
+    {
+        return 'order::';
     }
 }

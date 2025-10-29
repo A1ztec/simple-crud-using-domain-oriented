@@ -3,11 +3,9 @@
 
 namespace Domain\Order\Resources;
 
-
 use Domain\Order\Resources\Contracts\OrderResourceInterface;
 
-
-class CreateOrderFailedResource implements OrderResourceInterface
+class InitializeOrderPaymentFailedResource implements OrderResourceInterface
 {
 
     public function isSuccess(): bool
@@ -19,14 +17,13 @@ class CreateOrderFailedResource implements OrderResourceInterface
     {
         return 400;
     }
-
     public function getMessage(): string
     {
-        return  trans('Order_creation_failed');
+        return trans('Failed_to_initialize_order_payment');
     }
 
-    public function getData(): null
+    public function getData(): array
     {
-        return null;
+        return [];
     }
 }

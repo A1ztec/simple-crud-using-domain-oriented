@@ -9,37 +9,52 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Domain\Order\Enums\OrderStatusEnum;
 use Domain\Order\DataObjects\CreateOrderDto;
-use Domain\Order\Resources\CreateOrderFailedResource;
-use Domain\Order\Resources\CreateOrderSuccessResource;
 use Application\Product\QueryBuilders\ProductQueryBuilder;
-use Domain\Order\Resources\CheckForPendingOrderSuccessResource;
 use Domain\Order\Resources\Contracts\OrderResourceInterface;
+use Domain\Order\Resources\InitializeOrderCheckoutFailedResource;
+use Domain\Order\Resources\InitializeOrderPaymentSuccessResource;
+use Domain\Order\Resources\ProcessPendingOrderSuccessResource;
 
-class CreateOrderAction
+class InitializeOrderCheckoutAction
 {
     public function __invoke(CreateOrderDto $dto): OrderResourceInterface
     {
         try {
             return DB::transaction(function () use ($dto): OrderResourceInterface {
 
-                $existingOrder = (new CheckForPendingOrderAction())($dto);
+                $existingOrder = (new ProcessPendingOrderAction())($dto);
+
                 if ($existingOrder->isSuccess()) {
-                    return new CheckForPendingOrderSuccessResource(data: $existingOrder->getData());
+                    return new ProcessPendingOrderSuccessResource(data: $existingOrder->getData());
                 }
+
                 $products = $this->getProductsByIds($dto->items);
-                $ValidateOrderCreationData = (new ValidateOrderCreationData())($dto, $products);
-                if (!$ValidateOrderCreationData->isSuccess()) {
-                    throw new Exception($ValidateOrderCreationData->getMessage());
+
+                $ValidateOrderStockData = (new ValidateOrderStockAction())($dto);
+
+                if (!$ValidateOrderStockData->isSuccess()) {
+
+                    return $ValidateOrderStockData;
                 }
+
                 $calculatedTotal = $this->calculateTotal($dto->items, $products);
-                $order = Order::create(['user_id' => Auth::id(),  'total_amount' => $calculatedTotal, 'status' => OrderStatusEnum::PENDING, 'shipping_address' => $dto->shippingAddress]);
+
+                $order = Order::create([
+                    'user_id' => Auth::id(),
+                    'total_amount' => $calculatedTotal,
+                    'status' => OrderStatusEnum::PENDING,
+                    'shipping_address' => $dto->shippingAddress
+                ]);
+
                 (new CreateOrderItemsAction())($dto->items, $order->uuid, $products);
-                $resource = (new HandleOrderTransactionAction())($order, $dto->gateway);
-                return new CreateOrderSuccessResource(data: ['transaction' => $resource->getData()['transaction']]);
+
+                $resource = (new InitializeOrderPaymentAction())($order, $dto->gateway);
+
+                return new InitializeOrderPaymentSuccessResource(data: ['transaction' => $resource->getData()['transaction']]);
             });
         } catch (Exception $e) {
-            Log::error('Order creation failed', ['error' => $e->getMessage()]);
-            return new CreateOrderFailedResource();
+            Log::error('Order creation failed', ['error' => $e->getMessage(), 'line' => $e->getLine()]);
+            return new InitializeOrderCheckoutFailedResource();
         }
     }
 

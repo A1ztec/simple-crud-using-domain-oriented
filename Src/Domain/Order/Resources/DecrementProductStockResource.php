@@ -1,15 +1,12 @@
 <?php
 
-
 namespace Domain\Order\Resources;
 
 use Domain\Order\Resources\Contracts\OrderResourceInterface;
 
-class HandleOrderTransactionSuccessResource implements OrderResourceInterface
+class DecrementProductStockResource implements OrderResourceInterface
 {
-    public function __construct(
-        public  array $data,
-    ) {}
+    public function __construct(private array $data) {}
 
     public function isSuccess(): bool
     {
@@ -23,8 +20,9 @@ class HandleOrderTransactionSuccessResource implements OrderResourceInterface
 
     public function getMessage(): string
     {
-        return trans('Order_transaction_handled_successfully');
+        return trans('Product_stock_decremented_successfully');
     }
+
     public function getData(): array
     {
         return $this->data;

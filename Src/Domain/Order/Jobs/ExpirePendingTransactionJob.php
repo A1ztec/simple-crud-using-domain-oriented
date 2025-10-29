@@ -56,12 +56,7 @@ class ExpirePendingTransactionJob implements ShouldQueue
                 $transaction->paymentMethodGateway->update(['status' => StatusEnum::EXPIRED]);
             }
 
-
-            foreach ($transaction->order->items as $item) {
-                Product::where('id', $item->product_id)->increment('quantity', $item->quantity);
-            }
-
-            Log::info("ExpireTransactionJob: transaction {$transaction->id} expired and product quantities restored");
+            Log::info("ExpireTransactionJob: transaction {$transaction->id} expired");
         });
     }
 }

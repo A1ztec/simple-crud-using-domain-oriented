@@ -131,7 +131,11 @@ return [
             'path' => storage_path('logs/payment.log'),
             'level' => 'debug',
         ],
-
+        'sql' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/sql.log'),
+            'level' => 'debug',
+        ]
     ],
 
 ];

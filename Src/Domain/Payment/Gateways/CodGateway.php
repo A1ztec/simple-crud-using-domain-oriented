@@ -2,6 +2,7 @@
 
 namespace Domain\Payment\Gateways;
 
+use Domain\Order\Actions\DecrementProductStockAction;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -35,9 +36,18 @@ class CodGateway implements PaymentGatewayInterface
                 'status' => StatusEnum::SUCCESS,
             ]);
 
-            $transaction->order->update([
+            $items = $transaction->order->items;
+            $order = $transaction->order;
+            $decrementProductStock = (new DecrementProductStockAction())($items);
+
+            if ($decrementProductStock->getData()['stockShortage'] == true) {
+                $order->update([
+                    'status' => OrderStatusEnum::PAID_BUT_OUT_OF_STOCK,
+                ]);
+            }
+
+            $order->update([
                 'status' => OrderStatusEnum::COMPLETED,
-                'paid_at' => now()
             ]);
 
             event(new OrderCreated($order = $codTransaction->transaction->order->load('user', 'items')));

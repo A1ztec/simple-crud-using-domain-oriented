@@ -2,17 +2,18 @@
 
 namespace Domain\Payment\Gateways;
 
-use Domain\Order\Events\OrderCreated;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Domain\Payment\Enums\StatusEnum;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Domain\Order\Events\OrderCreated;
 use Domain\Payment\Enums\GatewayEnum;
 use Domain\Payment\Models\Transaction;
 use Domain\Order\Enums\OrderStatusEnum;
 use Domain\Payment\Models\StripePaymentTransaction;
+use Domain\Order\Actions\DecrementProductStockAction;
 use Domain\Payment\Contracts\PaymentGatewayInterface;
 use Domain\Payment\Contracts\OnlinePaymentGatewayInterface;
 use Domain\Payment\Resources\IntializePaymentFailedResource;
@@ -52,7 +53,6 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
             return new IntializePaymentSuccessResource(
                 data: [
                     'checkout_url' => $responseData['url'],
-                    'session_id' => $responseData['id'],
                     'reference_id' => $transaction->reference_id,
                 ],
                 message: 'Payment processing initiated , Check status using reference ID'
@@ -81,21 +81,31 @@ class StripeGateway implements PaymentGatewayInterface, OnlinePaymentGatewayInte
         $status = StatusEnum::stripeStatus($paymentStatus);
 
         DB::transaction(function () use ($stripeTransaction, $payload, $status) {
+
             $stripeTransaction->update(['gateway_response' => $payload, 'status' => $status]);
             $stripeTransaction->transaction->update(['status' => $status]);
-            $stripeTransaction->transaction->order->update([
-                'status' => OrderStatusEnum::COMPLETED,
-                'paid_at' => now()
-            ]);
+            $order = $stripeTransaction->transaction->order;
+            $items = $order->items;
+
+            if ($status == StatusEnum::SUCCESS) {
+
+                $decrementProductStock = (new DecrementProductStockAction())($items);
+
+                if ($decrementProductStock->getData()['stockShortage'] == true) {
+                    $orderStatus = OrderStatusEnum::PAID_BUT_OUT_OF_STOCK;
+                } else {
+                    $orderStatus = OrderStatusEnum::COMPLETED;
+                }
+                $order->update([
+                    'status' => $orderStatus,
+                    'paid_at' => now(),
+                ]);
+            }
         });
-
-
 
 
         event(new OrderCreated($stripeTransaction->transaction->order->load('user', 'items')));
         Log::channel('payment')->info('Successfully dispatched OrderCreated event');
-
-
 
         return new IntializePaymentSuccessResource(
             data: [

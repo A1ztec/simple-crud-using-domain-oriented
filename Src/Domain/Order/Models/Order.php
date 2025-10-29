@@ -43,6 +43,6 @@ class Order extends Model
 
     public function transaction()
     {
-        return $this->hasOne(Transaction::class, 'order_uuid', 'uuid')->latestOfMany('created_at');
+        return $this->hasOne(Transaction::class, 'order_uuid', 'uuid')->latestOfMany('id');
     }
 }

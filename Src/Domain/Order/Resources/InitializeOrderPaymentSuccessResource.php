@@ -5,11 +5,10 @@ namespace Domain\Order\Resources;
 
 use Domain\Order\Resources\Contracts\OrderResourceInterface;
 
-
-class CheckForPendingOrderSuccessResource implements OrderResourceInterface
+class InitializeOrderPaymentSuccessResource implements OrderResourceInterface
 {
     public function __construct(
-        protected ?array $data = null,
+        public  array $data,
     ) {}
 
     public function isSuccess(): bool
@@ -24,10 +23,9 @@ class CheckForPendingOrderSuccessResource implements OrderResourceInterface
 
     public function getMessage(): string
     {
-        return trans('Pending_Order_Found');
+        return trans('Initialize_order_payment_successfully');
     }
-
-    public function getData(): ?array
+    public function getData(): array
     {
         return $this->data;
     }

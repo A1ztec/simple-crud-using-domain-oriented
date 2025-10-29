@@ -1,12 +1,15 @@
 <?php
 
+
 namespace Domain\Order\Resources;
+
 
 use Domain\Order\Resources\Contracts\OrderResourceInterface;
 
-class ValidateOrderCreationSuccessResource implements OrderResourceInterface
-{
 
+class InitializeOrderCheckoutSuccessResource implements OrderResourceInterface
+{
+    public function __construct(private array $data) {}
 
     public function isSuccess(): bool
     {
@@ -15,16 +18,16 @@ class ValidateOrderCreationSuccessResource implements OrderResourceInterface
 
     public function getCode(): int
     {
-        return 200;
+        return 201;
     }
 
     public function getMessage(): string
     {
-        return trans('Order_Data_validated_Successfully');
+        return trans('Order_checkout_initialized_successfully');
     }
 
-    public function getData(): ?array
+    public function getData(): array
     {
-        return null;
+        return $this->data;
     }
 }

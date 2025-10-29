@@ -19,7 +19,9 @@ class HandlePaymentCallbackAction
         } catch (Exception $e) {
             Log::channel('payment')->error('Payment callback handling failed', [
                 'error' => $e->getMessage(),
-                'gateway' => $dto->gateway
+                'gateway' => $dto->gateway,
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
             ]);
             return new IntializePaymentFailedResource();
         }

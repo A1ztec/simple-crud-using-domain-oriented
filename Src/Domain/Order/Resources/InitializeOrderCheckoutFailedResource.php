@@ -3,10 +3,13 @@
 
 namespace Domain\Order\Resources;
 
+
 use Domain\Order\Resources\Contracts\OrderResourceInterface;
 
-class CheckForPendingOrderFailedResource implements OrderResourceInterface
+
+class InitializeOrderCheckoutFailedResource implements OrderResourceInterface
 {
+
     public function isSuccess(): bool
     {
         return false;
@@ -14,15 +17,15 @@ class CheckForPendingOrderFailedResource implements OrderResourceInterface
 
     public function getCode(): int
     {
-        return 404;
+        return 400;
     }
 
     public function getMessage(): string
     {
-        return trans('No_Pending_Order_Found');
+        return  trans('Failed_to_initialize_order_checkout');
     }
 
-    public function getData(): ?array
+    public function getData(): null
     {
         return null;
     }

@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Str;
 use Domain\User\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Gate;
 use Domain\Order\Events\OrderCreated;
 use Domain\Payment\Enums\GatewayEnum;
@@ -41,5 +44,29 @@ class AppServiceProvider extends ServiceProvider
             OrderCreated::class,
             NotifyAdminsOfNewOrder::class,
         );
+
+        if (app()->environment('local')) {
+            DB::listen(function ($query) {
+                $sql = $query->sql;
+                $bindings = $query->bindings;
+
+                // Replace ? with binding values for readability
+                foreach ($bindings as $binding) {
+                    $binding = is_numeric($binding) ? $binding : "'" . addslashes($binding) . "'";
+                    $sql = Str::replaceFirst('?', $binding, $sql);
+                }
+
+                $formatted = sprintf(
+                    "\n[%s]\nSQL: %s\nTime: %s ms\n",
+                    now()->format('Y-m-d H:i:s'),
+                    $sql,
+                    $query->time
+                );
+
+                Log::channel('sql')->info($formatted);
+            });
+        }
+
+        $this->loadTranslationsFrom(__DIR__ . '/../../Src/Application/Order/Lang', 'order');
     }
 }
